@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrito | Urban Moda</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="navbar">
+    <a class="logo" href="index.html">URBAN<span>MODA</span></a>
+    <button class="menu-btn" id="menuBtn">☰</button>
+    <nav id="menu">
+      <a href="index.html">Inicio</a>
+      <a href="productos.html">Productos</a>
+      <a href="admin.html">Admin</a>
+      <a href="login.html" class="btn-nav" id="loginLink">Ingresar</a>
+      <button class="logout-btn hidden" id="logoutBtn">Salir</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="section-title">
+      <p class="tag">Compra</p>
+      <h1>Mi carrito</h1>
+      <p>Productos agregados desde el catálogo.</p>
+    </section>
+
+    <section class="cart-layout">
+      <div id="carritoLista" class="list-card"></div>
+      <aside class="summary-card">
+        <h2>Resumen</h2>
+        <p>Subtotal: <strong id="subtotal">$0</strong></p>
+        <label for="cupon">Cupón</label>
+        <input type="text" id="cupon" placeholder="URBAN10">
+        <button class="btn-secondary full" id="aplicarCupon">Aplicar cupón</button>
+        <p>Total: <strong id="total">$0</strong></p>
+        <button class="btn-primary full" id="finalizarCompra">Finalizar compra</button>
+        <button class="clear-btn full" id="vaciarCarrito">Vaciar carrito</button>
+      </aside>
+    </section>
+
+    <p id="mensaje" class="mensaje"></p>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/carrito.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+services:
+  backend:
+    build: .
+    container_name: urban_moda_backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

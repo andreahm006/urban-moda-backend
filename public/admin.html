@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | Urban Moda</title>
+
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+
+<body>
+
+  <main class="container">
+
+    <h1>Panel Admin</h1>
+
+    <form id="productoForm">
+
+      <input
+        type="text"
+        id="productName"
+        placeholder="Nombre producto"
+        required
+      >
+
+      <select id="productCategory">
+
+        <option value="camisetas">
+          Camisas
+        </option>
+
+        <option value="pantalones">
+          Pantalones
+        </option>
+
+        <option value="blusas">
+          Blusas
+        </option>
+
+        <option value="chaquetas">
+          Chaquetas
+        </option>
+
+      </select>
+
+      <input
+        type="number"
+        id="productPrice"
+        placeholder="Precio"
+        required
+      >
+
+      <input
+        type="text"
+        id="productImage"
+        placeholder="URL de imagen"
+      >
+
+      <button type="submit">
+        Crear producto
+      </button>
+
+    </form>
+
+    <h2>Productos registrados</h2>
+
+    <section id="adminProducts"></section>
+
+  </main>
+
+  <script src="./js/admin.js?v=100"></script>
+
+</body>
+</html>
