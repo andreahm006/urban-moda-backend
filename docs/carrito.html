@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Urban Moda | Carrito</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="header">
+    <nav class="navbar">
+      <a class="logo" href="index.html">Urban Moda</a>
+      <button class="menu-btn" id="menuBtn">☰</button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="productos.html">Catálogo</a></li>
+        <li><a href="carrito.html">Carrito</a></li>
+        <li><a href="admin.html">Administrador</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="section page">
+    <h1>Carrito de compras</h1>
+    <p class="lead">Resumen de productos seleccionados por el usuario.</p>
+    <div class="cart-box">
+      <div id="cartItems"></div>
+      <div class="cart-total">
+        <strong>Total:</strong> <span id="cartTotal">$ 0</span>
+      </div>
+      <button class="btn primary" id="checkoutBtn">Finalizar compra</button>
+      <button class="btn secondary" id="clearCartBtn">Vaciar carrito</button>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>Urban Moda - Proyecto formativo SENA</p>
+  </footer>
+  <script src="js/main.js"></script>
+  <script src="js/carrito.js"></script>
+</body>
+</html>

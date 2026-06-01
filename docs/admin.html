@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Urban Moda | Administrador</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="header">
+    <nav class="navbar">
+      <a class="logo" href="index.html">Urban Moda</a>
+      <button class="menu-btn" id="menuBtn">☰</button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="productos.html">Catálogo</a></li>
+        <li><a href="carrito.html">Carrito</a></li>
+        <li><a href="admin.html">Administrador</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="section page">
+    <h1>Panel administrativo</h1>
+    <p class="lead">Registro demostrativo de productos para la evidencia de despliegue.</p>
+
+    <form class="form-card" id="productForm">
+      <label>Nombre del producto</label>
+      <input type="text" id="productName" placeholder="Ejemplo: Camisa urbana" required />
+
+      <label>Categoría</label>
+      <select id="productCategory" required>
+        <option value="camisas">Camisas</option>
+        <option value="pantalones">Pantalones</option>
+        <option value="buzos">Buzos</option>
+        <option value="chaquetas">Chaquetas</option>
+      </select>
+
+      <label>Precio</label>
+      <input type="number" id="productPrice" placeholder="Ejemplo: 85000" required />
+
+      <button class="btn primary" type="submit">Registrar producto</button>
+    </form>
+
+    <section class="table-wrap">
+      <h2>Productos registrados</h2>
+      <table>
+        <thead>
+          <tr><th>Producto</th><th>Categoría</th><th>Precio</th></tr>
+        </thead>
+        <tbody id="adminTable"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Urban Moda - Proyecto formativo SENA</p>
+  </footer>
+  <script src="js/main.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
