@@ -23,24 +23,14 @@
         required
       >
 
-      <select id="productCategory">
-
-        <option value="camisetas">
-          Camisas
-        </option>
-
-        <option value="pantalones">
-          Pantalones
-        </option>
-
-        <option value="blusas">
-          Blusas
-        </option>
-
-        <option value="chaquetas">
-          Chaquetas
-        </option>
-
+      <select id="productCategory" required>
+        <option value="">Selecciona una categoría</option>
+        <option value="4">Camisas</option>
+        <option value="3">Pantalones</option>
+        <option value="2">Buzos</option>
+        <option value="5">Chaquetas</option>
+        <option value="6">Blusas</option>
+        <option value="7">Faldas</option>
       </select>
 
       <input
@@ -57,18 +47,18 @@
       >
 
       <button type="submit">
-        Crear producto
+        Guardar producto
       </button>
 
     </form>
 
     <h2>Productos registrados</h2>
 
-    <section id="adminProducts"></section>
+    <section id="adminProducts" class="product-grid"></section>
 
   </main>
 
-  <script src="./js/admin.js?v=100"></script>
+  <script src="./js/admin.js?v=200"></script>
 
 </body>
 </html>

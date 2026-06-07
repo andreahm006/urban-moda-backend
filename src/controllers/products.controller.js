@@ -19,15 +19,14 @@ function mapProduct(row) {
     description: row.descripcion,
     price: Number(row.precio || 0),
     stock: row.stock,
-    category: row.nombre_categoria || 'Ropa',
+    category: row.nombre_categoria || 'Sin categoría',
     categoryId: row.id_categoria,
-    image: row.imagen || getDefaultImage(row.id_producto)
+    image: row.image || getDefaultImage(row.id_producto)
   };
 }
 
 async function listProducts(req, res, next) {
   try {
-
     const result = await pool.query(`
       SELECT p.*, c.nombre_categoria
       FROM productos p
@@ -37,7 +36,6 @@ async function listProducts(req, res, next) {
     `);
 
     res.json(result.rows.map(mapProduct));
-
   } catch (error) {
     next(error);
   }
@@ -45,7 +43,6 @@ async function listProducts(req, res, next) {
 
 async function createProduct(req, res, next) {
   try {
-
     const {
       name,
       description,
@@ -64,9 +61,9 @@ async function createProduct(req, res, next) {
         precio,
         stock,
         id_categoria,
-        imagen
+        image
       )
-      VALUES ($1,$2,$3,$4,$5,$6)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
       `,
       [
@@ -80,7 +77,6 @@ async function createProduct(req, res, next) {
     );
 
     res.status(201).json(mapProduct(result.rows[0]));
-
   } catch (error) {
     next(error);
   }
@@ -88,12 +84,13 @@ async function createProduct(req, res, next) {
 
 async function getProduct(req, res, next) {
   try {
-
     const result = await pool.query(
       `
-      SELECT *
-      FROM productos
-      WHERE id_producto = $1
+      SELECT p.*, c.nombre_categoria
+      FROM productos p
+      LEFT JOIN categorias c
+      ON c.id_categoria = p.id_categoria
+      WHERE p.id_producto = $1
       `,
       [req.params.id]
     );
@@ -105,7 +102,6 @@ async function getProduct(req, res, next) {
     }
 
     res.json(mapProduct(result.rows[0]));
-
   } catch (error) {
     next(error);
   }
@@ -113,7 +109,6 @@ async function getProduct(req, res, next) {
 
 async function updateProduct(req, res, next) {
   try {
-
     const {
       name,
       description,
@@ -132,7 +127,7 @@ async function updateProduct(req, res, next) {
         precio = $3,
         stock = $4,
         id_categoria = $5,
-        imagen = $6
+        image = $6
       WHERE id_producto = $7
       RETURNING *
       `,
@@ -140,9 +135,9 @@ async function updateProduct(req, res, next) {
         name,
         description,
         price,
-        stock,
+        stock || 10,
         categoryId,
-        image,
+        image || '',
         req.params.id
       ]
     );
@@ -153,8 +148,18 @@ async function updateProduct(req, res, next) {
       });
     }
 
-    res.json(mapProduct(result.rows[0]));
+    const productWithCategory = await pool.query(
+      `
+      SELECT p.*, c.nombre_categoria
+      FROM productos p
+      LEFT JOIN categorias c
+      ON c.id_categoria = p.id_categoria
+      WHERE p.id_producto = $1
+      `,
+      [req.params.id]
+    );
 
+    res.json(mapProduct(productWithCategory.rows[0]));
   } catch (error) {
     next(error);
   }
@@ -162,7 +167,6 @@ async function updateProduct(req, res, next) {
 
 async function deleteProduct(req, res, next) {
   try {
-
     const result = await pool.query(
       `
       DELETE FROM productos
@@ -181,7 +185,6 @@ async function deleteProduct(req, res, next) {
     res.json({
       message: 'Producto eliminado'
     });
-
   } catch (error) {
     next(error);
   }
@@ -189,11 +192,9 @@ async function deleteProduct(req, res, next) {
 
 async function createVariant(req, res, next) {
   try {
-
     res.json({
       message: 'Variant creada'
     });
-
   } catch (error) {
     next(error);
   }

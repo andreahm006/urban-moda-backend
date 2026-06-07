@@ -1,184 +1,194 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const API_URL = "https://urban-moda-backend.onrender.com";
 
-  const form =
-    document.getElementById("productoForm");
+  const form = document.getElementById("productoForm");
+  const adminProducts = document.getElementById("adminProducts");
 
-  const adminProducts =
-    document.getElementById("adminProducts");
+  const productName = document.getElementById("productName");
+  const productCategory = document.getElementById("productCategory");
+  const productPrice = document.getElementById("productPrice");
+  const productImage = document.getElementById("productImage");
 
   let productoEditandoId = null;
 
+  const categorias = {
+    Camisas: 4,
+    Pantalones: 3,
+    Buzos: 2,
+    Chaquetas: 5,
+    Blusas: 6,
+    Faldas: 7
+  };
+
   async function cargarProductos() {
+    try {
+      const response = await fetch(`${API_URL}/products`);
+      const productos = await response.json();
 
-    const response =
-      await fetch("https://urban-moda-backend.onrender.com/products");
+      adminProducts.innerHTML = "";
 
-    const productos =
-      await response.json();
+      productos.forEach((producto) => {
+        const id = producto.id || producto.id_producto;
+        const nombre = producto.name || producto.nombre;
+        const descripcion = producto.description || producto.descripcion || nombre;
+        const precio = producto.price || producto.precio || 0;
+        const imagen = producto.image || producto.imagen || "https://placehold.co/300x400";
+        const categoria = producto.category || producto.nombre_categoria || "Sin categoría";
+        const categoryId = producto.categoryId || producto.id_categoria || categorias[categoria];
 
-    adminProducts.innerHTML = "";
+        const card = document.createElement("article");
+        card.classList.add("product-card");
 
-    productos.forEach((producto) => {
+        card.innerHTML = `
+          <div class="product-image">
+            <img
+              src="${imagen}"
+              alt="${nombre}"
+              style="width:100%; height:300px; object-fit:cover; border-radius:20px;"
+            >
+          </div>
 
-      adminProducts.innerHTML += `
-      
-        <div class="product-card">
+          <div class="product-content">
+            <h3>${nombre}</h3>
+            <p>${descripcion}</p>
+            <p><strong>Categoría:</strong> ${categoria}</p>
+            <strong>$ ${Number(precio).toLocaleString()}</strong>
 
-          <img
-            src="${producto.image || 'https://placehold.co/300x400'}"
-            alt="${producto.name}"
-          >
+            <br><br>
 
-          <h3>${producto.name}</h3>
+            <button type="button" class="btn-editar">Editar</button>
+            <button type="button" class="btn-eliminar">Eliminar</button>
+          </div>
+        `;
 
-          <p>${producto.description}</p>
+        card.querySelector(".btn-editar").addEventListener("click", () => {
+          editarProducto(id, nombre, precio, categoryId, imagen);
+        });
 
-          <strong>$${producto.price}</strong>
+        card.querySelector(".btn-eliminar").addEventListener("click", () => {
+          eliminarProducto(id);
+        });
 
-          <br><br>
-
-          <button onclick="editarProducto(
-            ${producto.id},
-            '${producto.name}',
-            ${producto.price},
-            ${producto.categoryId},
-            '${producto.image || ""}'
-          )">
-            Editar
-          </button>
-
-          <button onclick="eliminarProducto(${producto.id})">
-            Eliminar
-          </button>
-
-        </div>
-      `;
-    });
+        adminProducts.appendChild(card);
+      });
+    } catch (error) {
+      console.error("Error cargando productos:", error);
+      alert("Error cargando productos");
+    }
   }
 
   form.addEventListener("submit", async (e) => {
-
     e.preventDefault();
 
-    const nombre =
-      document.getElementById("productName").value;
+    const nombre = productName.value.trim();
+    const precio = Number(productPrice.value);
+    const imagen = productImage.value.trim();
 
-    const categoria =
-      document.getElementById("productCategory").value;
+    const categoriaSeleccionada =
+      productCategory.options[productCategory.selectedIndex].text.trim();
 
-    const precio =
-      document.getElementById("productPrice").value;
+    const idCategoria = Number(productCategory.value) || categorias[categoriaSeleccionada];
 
-    const imagen =
-      document.getElementById("productImage").value;
-
-    let categoryId = 1;
-
-    if (categoria === "camisetas") categoryId = 1;
-    if (categoria === "pantalones") categoryId = 2;
-    if (categoria === "buzos") categoryId = 3;
-    if (categoria === "chaquetas") categoryId = 4;
-    if (categoria === "blusas") categoryId = 5;
-
-    const producto = {
-      name: nombre,
-      description: nombre,
-      price: Number(precio),
-      stock: 10,
-      image: imagen,
-      categoryId
-    };
-
-    let url = "https://urban-moda-backend.onrender.com/products";
-    let method = "POST";
-
-    if (productoEditandoId) {
-
-      url =
-        `https://urban-moda-backend.onrender.com/products/${productoEditandoId}`;
-
-      method = "PATCH";
-    }
-
-    const response = await fetch(url, {
-
-      method,
-
-      headers: {
-        "Content-Type": "application/json"
-      },
-
-      body: JSON.stringify(producto)
-    });
-
-    if (!response.ok) {
-
-      alert("Error guardando producto");
-
+    if (!nombre) {
+      alert("Ingresa el nombre del producto");
       return;
     }
 
-    alert(
-      productoEditandoId
-        ? "Producto actualizado"
-        : "Producto creado"
-    );
+    if (!idCategoria) {
+      alert("Selecciona una categoría válida");
+      return;
+    }
 
-    productoEditandoId = null;
+    if (!precio) {
+      alert("Ingresa el precio del producto");
+      return;
+    }
 
-    form.reset();
+    const producto = {
+      nombre: nombre,
+      descripcion: nombre,
+      precio: precio,
+      stock: 10,
+      imagen: imagen,
+      id_categoria: idCategoria,
 
-    cargarProductos();
+      name: nombre,
+      description: nombre,
+      price: precio,
+      image: imagen,
+      categoryId: idCategoria
+    };
+
+    let url = `${API_URL}/products`;
+    let method = "POST";
+
+    if (productoEditandoId) {
+      url = `${API_URL}/products/${productoEditandoId}`;
+      method = "PUT";
+    }
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(producto)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error("Error del backend:", errorData);
+        alert("Error guardando producto");
+        return;
+      }
+
+      alert(
+        productoEditandoId
+          ? "Producto actualizado correctamente"
+          : "Producto creado correctamente"
+      );
+
+      productoEditandoId = null;
+      form.reset();
+      cargarProductos();
+    } catch (error) {
+      console.error("Error guardando producto:", error);
+      alert("Error guardando producto");
+    }
   });
 
-  window.editarProducto = function (
-    id,
-    nombre,
-    precio,
-    categoryId,
-    imagen
-  ) {
-
+  function editarProducto(id, nombre, precio, categoryId, imagen) {
     productoEditandoId = id;
 
-    document.getElementById("productName").value =
-      nombre;
+    productName.value = nombre || "";
+    productPrice.value = precio || "";
+    productImage.value = imagen || "";
+    productCategory.value = String(categoryId || "");
+  }
 
-    document.getElementById("productPrice").value =
-      precio;
-
-    document.getElementById("productImage").value =
-      imagen || "";
-
-    let categoria = "camisetas";
-
-    if (categoryId === 1) categoria = "camisetas";
-    if (categoryId === 2) categoria = "pantalones";
-    if (categoryId === 3) categoria = "buzos";
-    if (categoryId === 4) categoria = "chaquetas";
-    if (categoryId === 5) categoria = "blusas";
-
-    document.getElementById("productCategory").value =
-      categoria;
-  };
-
-  window.eliminarProducto = async function (id) {
-
-    const confirmar =
-      confirm("¿Eliminar producto?");
+  async function eliminarProducto(id) {
+    const confirmar = confirm("¿Eliminar producto?");
 
     if (!confirmar) return;
 
-    await fetch(
-      `http://localhost:3000/products/${id}`,
-      {
+    try {
+      const response = await fetch(`${API_URL}/products/${id}`, {
         method: "DELETE"
-      }
-    );
+      });
 
-    cargarProductos();
-  };
+      if (!response.ok) {
+        alert("Error eliminando producto");
+        return;
+      }
+
+      alert("Producto eliminado correctamente");
+      cargarProductos();
+    } catch (error) {
+      console.error("Error eliminando producto:", error);
+      alert("Error eliminando producto");
+    }
+  }
 
   cargarProductos();
-
 });
