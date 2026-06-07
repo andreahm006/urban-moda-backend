@@ -11,12 +11,17 @@
   <header class="navbar">
     <a class="logo" href="index.html">URBAN<span>MODA</span></a>
 
-    <nav>
+    <nav id="menu">
       <a href="index.html">Inicio</a>
       <a href="productos.html">Productos</a>
-      <a href="carrito.html">Carrito <span id="cartCount" class="badge">0</span></a>
-      <a href="admin.html">Admin</a>
+      <a href="carrito.html">
+        Carrito <span id="cartCount" class="badge">0</span>
+      </a>
+
+      <a href="admin.html" id="adminLink" class="hidden">Admin</a>
+
       <a href="login.html" class="btn-nav" id="loginLink">Ingresar</a>
+      <button class="logout-btn hidden" id="logoutBtn">Salir</button>
     </nav>
   </header>
 
@@ -28,7 +33,11 @@
     </section>
 
     <section class="filters">
-      <input type="text" id="searchInput" placeholder="Buscar producto...">
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Buscar producto..."
+      >
 
       <select id="categoryFilter">
         <option value="todos">Todas las categorías</option>
@@ -44,6 +53,8 @@
     <section id="productsGrid" class="product-grid"></section>
   </main>
 
+  <script src="./js/api.js"></script>
+  <script src="./js/main.js?v=303"></script>
   <script src="./js/productos.js?v=103"></script>
 </body>
 </html>
