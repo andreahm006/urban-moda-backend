@@ -1,194 +1,64 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const API_URL = "https://urban-moda-backend.onrender.com";
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | Urban Moda</title>
 
-  const form = document.getElementById("productoForm");
-  const adminProducts = document.getElementById("adminProducts");
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
 
-  const productName = document.getElementById("productName");
-  const productCategory = document.getElementById("productCategory");
-  const productPrice = document.getElementById("productPrice");
-  const productImage = document.getElementById("productImage");
+<body>
 
-  let productoEditandoId = null;
+  <main class="container">
 
-  const categorias = {
-    Camisas: 4,
-    Pantalones: 3,
-    Buzos: 2,
-    Chaquetas: 5,
-    Blusas: 6,
-    Faldas: 7
-  };
+    <h1>Panel Admin</h1>
 
-  async function cargarProductos() {
-    try {
-      const response = await fetch(`${API_URL}/products`);
-      const productos = await response.json();
+    <form id="productoForm">
 
-      adminProducts.innerHTML = "";
+      <input
+        type="text"
+        id="productName"
+        placeholder="Nombre producto"
+        required
+      >
 
-      productos.forEach((producto) => {
-        const id = producto.id || producto.id_producto;
-        const nombre = producto.name || producto.nombre;
-        const descripcion = producto.description || producto.descripcion || nombre;
-        const precio = producto.price || producto.precio || 0;
-        const imagen = producto.image || producto.imagen || "https://placehold.co/300x400";
-        const categoria = producto.category || producto.nombre_categoria || "Sin categoría";
-        const categoryId = producto.categoryId || producto.id_categoria || categorias[categoria];
+      <select id="productCategory" required>
+        <option value="">Selecciona una categoría</option>
+        <option value="4">Camisas</option>
+        <option value="3">Pantalones</option>
+        <option value="2">Buzos</option>
+        <option value="5">Chaquetas</option>
+        <option value="6">Blusas</option>
+        <option value="7">Faldas</option>
+      </select>
 
-        const card = document.createElement("article");
-        card.classList.add("product-card");
+      <input
+        type="number"
+        id="productPrice"
+        placeholder="Precio"
+        required
+      >
 
-        card.innerHTML = `
-          <div class="product-image">
-            <img
-              src="${imagen}"
-              alt="${nombre}"
-              style="width:100%; height:300px; object-fit:cover; border-radius:20px;"
-            >
-          </div>
+      <input
+        type="text"
+        id="productImage"
+        placeholder="URL de imagen"
+      >
 
-          <div class="product-content">
-            <h3>${nombre}</h3>
-            <p>${descripcion}</p>
-            <p><strong>Categoría:</strong> ${categoria}</p>
-            <strong>$ ${Number(precio).toLocaleString()}</strong>
+      <button type="submit">
+        Guardar producto
+      </button>
 
-            <br><br>
+    </form>
 
-            <button type="button" class="btn-editar">Editar</button>
-            <button type="button" class="btn-eliminar">Eliminar</button>
-          </div>
-        `;
+    <h2>Productos registrados</h2>
 
-        card.querySelector(".btn-editar").addEventListener("click", () => {
-          editarProducto(id, nombre, precio, categoryId, imagen);
-        });
+    <section id="adminProducts" class="product-grid"></section>
 
-        card.querySelector(".btn-eliminar").addEventListener("click", () => {
-          eliminarProducto(id);
-        });
+  </main>
 
-        adminProducts.appendChild(card);
-      });
-    } catch (error) {
-      console.error("Error cargando productos:", error);
-      alert("Error cargando productos");
-    }
-  }
+  <script src="./js/admin.js?v=300"></script>
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const nombre = productName.value.trim();
-    const precio = Number(productPrice.value);
-    const imagen = productImage.value.trim();
-
-    const categoriaSeleccionada =
-      productCategory.options[productCategory.selectedIndex].text.trim();
-
-    const idCategoria = Number(productCategory.value) || categorias[categoriaSeleccionada];
-
-    if (!nombre) {
-      alert("Ingresa el nombre del producto");
-      return;
-    }
-
-    if (!idCategoria) {
-      alert("Selecciona una categoría válida");
-      return;
-    }
-
-    if (!precio) {
-      alert("Ingresa el precio del producto");
-      return;
-    }
-
-    const producto = {
-      nombre: nombre,
-      descripcion: nombre,
-      precio: precio,
-      stock: 10,
-      imagen: imagen,
-      id_categoria: idCategoria,
-
-      name: nombre,
-      description: nombre,
-      price: precio,
-      image: imagen,
-      categoryId: idCategoria
-    };
-
-    let url = `${API_URL}/products`;
-    let method = "POST";
-
-    if (productoEditandoId) {
-      url = `${API_URL}/products/${productoEditandoId}`;
-      method = "PUT";
-    }
-
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(producto)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        console.error("Error del backend:", errorData);
-        alert("Error guardando producto");
-        return;
-      }
-
-      alert(
-        productoEditandoId
-          ? "Producto actualizado correctamente"
-          : "Producto creado correctamente"
-      );
-
-      productoEditandoId = null;
-      form.reset();
-      cargarProductos();
-    } catch (error) {
-      console.error("Error guardando producto:", error);
-      alert("Error guardando producto");
-    }
-  });
-
-  function editarProducto(id, nombre, precio, categoryId, imagen) {
-    productoEditandoId = id;
-
-    productName.value = nombre || "";
-    productPrice.value = precio || "";
-    productImage.value = imagen || "";
-    productCategory.value = String(categoryId || "");
-  }
-
-  async function eliminarProducto(id) {
-    const confirmar = confirm("¿Eliminar producto?");
-
-    if (!confirmar) return;
-
-    try {
-      const response = await fetch(`${API_URL}/products/${id}`, {
-        method: "DELETE"
-      });
-
-      if (!response.ok) {
-        alert("Error eliminando producto");
-        return;
-      }
-
-      alert("Producto eliminado correctamente");
-      cargarProductos();
-    } catch (error) {
-      console.error("Error eliminando producto:", error);
-      alert("Error eliminando producto");
-    }
-  }
-
-  cargarProductos();
-});
+</body>
+</html>

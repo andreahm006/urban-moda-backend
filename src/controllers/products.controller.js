@@ -76,7 +76,18 @@ async function createProduct(req, res, next) {
       ]
     );
 
-    res.status(201).json(mapProduct(result.rows[0]));
+    const productWithCategory = await pool.query(
+      `
+      SELECT p.*, c.nombre_categoria
+      FROM productos p
+      LEFT JOIN categorias c
+      ON c.id_categoria = p.id_categoria
+      WHERE p.id_producto = $1
+      `,
+      [result.rows[0].id_producto]
+    );
+
+    res.status(201).json(mapProduct(productWithCategory.rows[0]));
   } catch (error) {
     next(error);
   }
