@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function cargarProductos() {
 
     const response =
-      await fetch("http://localhost:3000/products");
+      await fetch("https://urban-moda-backend.onrender.com/products");
 
     const productos =
       await response.json();
@@ -89,13 +89,13 @@ document.addEventListener("DOMContentLoaded", () => {
       categoryId
     };
 
-    let url = "http://localhost:3000/products";
+    let url = "https://urban-moda-backend.onrender.com/products";
     let method = "POST";
 
     if (productoEditandoId) {
 
       url =
-        `http://localhost:3000/products/${productoEditandoId}`;
+        `https://urban-moda-backend.onrender.com/products/${productoEditandoId}`;
 
       method = "PATCH";
     }

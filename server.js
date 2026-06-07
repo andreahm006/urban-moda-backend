@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 testConnection()
   .then(() => {
     app.listen(PORT, () => {
-      console.log(`API Urban Moda corriendo en http://localhost:${PORT}`);
+      console.log(`API Urban Moda corriendo en el puerto ${PORT}`);
     });
   })
   .catch((error) => {

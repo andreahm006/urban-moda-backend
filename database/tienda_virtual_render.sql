@@ -2,7 +2,6 @@
 -- PostgreSQL database dump
 --
 
-\restrict QLjNxnIsJpE0RkPBeMQjfmFFyoQ42L1QvT1aErLq9kopMbFdi6U3prVIGcILBxQ
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.3
@@ -14,8 +13,7 @@ SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
 SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on
-;
+SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
 SET xmloption = content;
@@ -37,7 +35,6 @@ CREATE TABLE public.categorias (
 );
 
 
-ALTER TABLE public.categorias OWNER TO postgres;
 
 --
 -- TOC entry 221 (class 1259 OID 16404)
@@ -53,7 +50,6 @@ CREATE SEQUENCE public.categorias_id_categoria_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.categorias_id_categoria_seq OWNER TO postgres;
 
 --
 -- TOC entry 5127 (class 0 OID 0)
@@ -77,7 +73,6 @@ CREATE TABLE public.clientes (
 );
 
 
-ALTER TABLE public.clientes OWNER TO postgres;
 
 --
 -- TOC entry 237 (class 1259 OID 16513)
@@ -93,7 +88,6 @@ CREATE SEQUENCE public.clientes_id_cliente_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.clientes_id_cliente_seq OWNER TO postgres;
 
 --
 -- TOC entry 5128 (class 0 OID 0)
@@ -119,7 +113,6 @@ CREATE TABLE public.detalles_pedido (
 );
 
 
-ALTER TABLE public.detalles_pedido OWNER TO postgres;
 
 --
 -- TOC entry 229 (class 1259 OID 16460)
@@ -135,7 +128,6 @@ CREATE SEQUENCE public.detalles_pedido_id_detalle_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.detalles_pedido_id_detalle_seq OWNER TO postgres;
 
 --
 -- TOC entry 5129 (class 0 OID 0)
@@ -160,7 +152,6 @@ CREATE TABLE public.envios (
 );
 
 
-ALTER TABLE public.envios OWNER TO postgres;
 
 --
 -- TOC entry 233 (class 1259 OID 16486)
@@ -176,7 +167,6 @@ CREATE SEQUENCE public.envios_id_envio_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.envios_id_envio_seq OWNER TO postgres;
 
 --
 -- TOC entry 5130 (class 0 OID 0)
@@ -201,7 +191,6 @@ CREATE TABLE public.imagenes_producto (
 );
 
 
-ALTER TABLE public.imagenes_producto OWNER TO postgres;
 
 --
 -- TOC entry 225 (class 1259 OID 16431)
@@ -217,7 +206,6 @@ CREATE SEQUENCE public.imagenes_producto_id_imagen_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.imagenes_producto_id_imagen_seq OWNER TO postgres;
 
 --
 -- TOC entry 5131 (class 0 OID 0)
@@ -244,7 +232,6 @@ CREATE TABLE public.items_carrito (
 );
 
 
-ALTER TABLE public.items_carrito OWNER TO postgres;
 
 --
 -- TOC entry 243 (class 1259 OID 16597)
@@ -260,7 +247,6 @@ CREATE SEQUENCE public.items_carrito_id_item_carrito_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.items_carrito_id_item_carrito_seq OWNER TO postgres;
 
 --
 -- TOC entry 5132 (class 0 OID 0)
@@ -285,7 +271,6 @@ CREATE TABLE public.pagos (
 );
 
 
-ALTER TABLE public.pagos OWNER TO postgres;
 
 --
 -- TOC entry 231 (class 1259 OID 16472)
@@ -301,7 +286,6 @@ CREATE SEQUENCE public.pagos_id_pago_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.pagos_id_pago_seq OWNER TO postgres;
 
 --
 -- TOC entry 5133 (class 0 OID 0)
@@ -325,7 +309,6 @@ CREATE TABLE public.pedidos (
 );
 
 
-ALTER TABLE public.pedidos OWNER TO postgres;
 
 --
 -- TOC entry 235 (class 1259 OID 16502)
@@ -341,7 +324,6 @@ CREATE SEQUENCE public.pedidos_id_pedido_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.pedidos_id_pedido_seq OWNER TO postgres;
 
 --
 -- TOC entry 5134 (class 0 OID 0)
@@ -367,7 +349,6 @@ CREATE TABLE public.perfiles (
 );
 
 
-ALTER TABLE public.perfiles OWNER TO postgres;
 
 --
 -- TOC entry 219 (class 1259 OID 16388)
@@ -383,7 +364,6 @@ CREATE SEQUENCE public.perfiles_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.perfiles_id_seq OWNER TO postgres;
 
 --
 -- TOC entry 5135 (class 0 OID 0)
@@ -409,7 +389,6 @@ CREATE TABLE public.productos (
 );
 
 
-ALTER TABLE public.productos OWNER TO postgres;
 
 --
 -- TOC entry 227 (class 1259 OID 16445)
@@ -425,7 +404,6 @@ CREATE SEQUENCE public.productos_id_producto_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.productos_id_producto_seq OWNER TO postgres;
 
 --
 -- TOC entry 5136 (class 0 OID 0)
@@ -451,7 +429,6 @@ CREATE TABLE public.resenas (
 );
 
 
-ALTER TABLE public.resenas OWNER TO postgres;
 
 --
 -- TOC entry 241 (class 1259 OID 16563)
@@ -467,7 +444,6 @@ CREATE SEQUENCE public.resenas_id_resena_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.resenas_id_resena_seq OWNER TO postgres;
 
 --
 -- TOC entry 5137 (class 0 OID 0)
@@ -494,7 +470,6 @@ CREATE TABLE public.usuarios (
 );
 
 
-ALTER TABLE public.usuarios OWNER TO postgres;
 
 --
 -- TOC entry 239 (class 1259 OID 16526)
@@ -510,7 +485,6 @@ CREATE SEQUENCE public.usuarios_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.usuarios_id_seq OWNER TO postgres;
 
 --
 -- TOC entry 5138 (class 0 OID 0)
@@ -537,7 +511,6 @@ CREATE TABLE public.variantes_producto (
 );
 
 
-ALTER TABLE public.variantes_producto OWNER TO postgres;
 
 --
 -- TOC entry 223 (class 1259 OID 16413)
@@ -553,7 +526,6 @@ CREATE SEQUENCE public.variantes_producto_id_variante_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.variantes_producto_id_variante_seq OWNER TO postgres;
 
 --
 -- TOC entry 5139 (class 0 OID 0)
@@ -1248,5 +1220,4 @@ ALTER TABLE ONLY public.resenas
 -- PostgreSQL database dump complete
 --
 
-\unrestrict QLjNxnIsJpE0RkPBeMQjfmFFyoQ42L1QvT1aErLq9kopMbFdi6U3prVIGcILBxQ
 

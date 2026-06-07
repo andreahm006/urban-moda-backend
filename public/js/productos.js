@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function cargarProductos() {
-    const response = await fetch("http://localhost:3000/products");
+    const response = await fetchfetch("https://urban-moda-backend.onrender.com/products");
     productos = await response.json();
     mostrarProductos(productos);
     actualizarContadorCarrito();

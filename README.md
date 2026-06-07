@@ -68,7 +68,7 @@ npm run dev
 5. Abre el frontend desde el mismo backend:
 
 ```txt
-http://localhost:3000/index.html
+https://urban-moda-backend.onrender.com
 ```
 
 ## Ejecutar con Docker usando PostgreSQL local
@@ -84,7 +84,7 @@ docker compose up --build
 El backend queda en:
 
 ```txt
-http://localhost:3000
+https://urban-moda-backend.onrender.com
 ```
 
 ## Rutas principales
