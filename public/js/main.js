@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const logoutBtn = document.getElementById("logoutBtn");
   const adminLink = document.getElementById("adminLink");
   const cartCount = document.getElementById("cartCount");
+  const registerButton = document.getElementById("registerButton");
+  const registerLink = document.getElementById("registerLink");
 
   const token =
     localStorage.getItem("token") ||
@@ -28,12 +30,14 @@ document.addEventListener("DOMContentLoaded", () => {
     cartCount.textContent = cantidad;
   }
 
-  if (token && user && loginLink) {
+  if (token && user) {
     const nombreUsuario = user.name || user.email || "Usuario";
 
-    loginLink.textContent = `Hola, ${nombreUsuario}`;
-    loginLink.href = user.role === "admin" ? "admin.html" : "productos.html";
-    loginLink.classList.remove("btn-nav");
+    if (loginLink) {
+      loginLink.textContent = `Hola, ${nombreUsuario}`;
+      loginLink.href = user.role === "admin" ? "admin.html" : "productos.html";
+      loginLink.classList.remove("btn-nav");
+    }
 
     if (adminLink) {
       if (user.role === "admin") {
@@ -41,6 +45,14 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         adminLink.classList.add("hidden");
       }
+    }
+
+    if (registerButton) {
+      registerButton.classList.add("hidden");
+    }
+
+    if (registerLink) {
+      registerLink.classList.add("hidden");
     }
 
     if (logoutBtn) {
@@ -67,6 +79,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (adminLink) {
       adminLink.classList.add("hidden");
+    }
+
+    if (registerButton) {
+      registerButton.classList.remove("hidden");
+    }
+
+    if (registerLink) {
+      registerLink.classList.remove("hidden");
     }
   }
 });
