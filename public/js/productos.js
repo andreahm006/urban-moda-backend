@@ -28,9 +28,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
       productos = await response.json();
 
-      console.log("Productos cargados:", productos);
+      const params = new URLSearchParams(window.location.search);
+      const categoriaURL = params.get("categoria");
 
-      mostrarProductos(productos);
+      if (categoriaURL && categoryFilter) {
+        categoryFilter.value = categoriaURL;
+        filtrarProductos();
+      } else {
+        mostrarProductos(productos);
+      }
+
       actualizarContadorCarrito();
     } catch (error) {
       console.error("Error cargando productos:", error);
@@ -63,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
         producto.description || producto.descripcion || "Producto Urban Moda";
       const precio = producto.price || producto.precio || 0;
       const stock = producto.stock || 0;
-      const categoria = producto.category || producto.nombre_categoria || "Ropa";
+      const categoria = producto.category || producto.nombre_categoria || "Sin categoría";
       const imagen =
         producto.image || producto.imagen || "https://placehold.co/300x400";
       const id = producto.id || producto.id_producto;
@@ -104,8 +111,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function filtrarProductos() {
-    const texto = searchInput.value.toLowerCase();
-    const categoriaFiltro = categoryFilter.value;
+    const texto = searchInput ? searchInput.value.toLowerCase() : "";
+    const categoriaFiltro = categoryFilter ? categoryFilter.value : "todos";
 
     const filtrados = productos.filter((producto) => {
       const nombre = producto.name || producto.nombre || "";
@@ -155,8 +162,13 @@ document.addEventListener("DOMContentLoaded", () => {
     alert(`${producto.name || producto.nombre} agregado al carrito`);
   };
 
-  searchInput.addEventListener("input", filtrarProductos);
-  categoryFilter.addEventListener("change", filtrarProductos);
+  if (searchInput) {
+    searchInput.addEventListener("input", filtrarProductos);
+  }
+
+  if (categoryFilter) {
+    categoryFilter.addEventListener("change", filtrarProductos);
+  }
 
   actualizarContadorCarrito();
   cargarProductos();
