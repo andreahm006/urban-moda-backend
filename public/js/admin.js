@@ -1,64 +1,184 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin | Urban Moda</title>
+document.addEventListener("DOMContentLoaded", () => {
+  const API_URL = "https://urban-moda-backend.onrender.com";
 
-  <link rel="stylesheet" href="./css/styles.css">
-</head>
+  const form = document.getElementById("productoForm");
+  const adminProducts = document.getElementById("adminProducts");
 
-<body>
+  const productName = document.getElementById("productName");
+  const productCategory = document.getElementById("productCategory");
+  const productPrice = document.getElementById("productPrice");
+  const productImage = document.getElementById("productImage");
 
-  <main class="container">
+  let productoEditandoId = null;
 
-    <h1>Panel Admin</h1>
+  async function cargarProductos() {
+    adminProducts.innerHTML = "<p>Cargando productos...</p>";
 
-    <form id="productoForm">
+    try {
+      const response = await fetch(`${API_URL}/products`);
 
-      <input
-        type="text"
-        id="productName"
-        placeholder="Nombre producto"
-        required
-      >
+      if (!response.ok) {
+        throw new Error("No se pudieron cargar los productos");
+      }
 
-      <select id="productCategory" required>
-        <option value="">Selecciona una categoría</option>
-        <option value="4">Camisas</option>
-        <option value="3">Pantalones</option>
-        <option value="2">Buzos</option>
-        <option value="5">Chaquetas</option>
-        <option value="6">Blusas</option>
-        <option value="7">Faldas</option>
-      </select>
+      const productos = await response.json();
 
-      <input
-        type="number"
-        id="productPrice"
-        placeholder="Precio"
-        required
-      >
+      adminProducts.innerHTML = "";
 
-      <input
-        type="text"
-        id="productImage"
-        placeholder="URL de imagen"
-      >
+      if (!productos.length) {
+        adminProducts.innerHTML = "<p>No hay productos registrados.</p>";
+        return;
+      }
 
-      <button type="submit">
-        Guardar producto
-      </button>
+      productos.forEach((producto) => {
+        const id = producto.id;
+        const nombre = producto.name;
+        const descripcion = producto.description || producto.name;
+        const precio = producto.price || 0;
+        const categoria = producto.category || "Sin categoría";
+        const categoryId = producto.categoryId;
+        const imagen = producto.image || "https://placehold.co/300x400";
 
-    </form>
+        const card = document.createElement("article");
+        card.classList.add("product-card");
 
-    <h2>Productos registrados</h2>
+        card.innerHTML = `
+          <div class="product-image">
+            <img
+              src="${imagen}"
+              alt="${nombre}"
+              style="width:100%; height:300px; object-fit:cover; border-radius:20px;"
+            >
+          </div>
 
-    <section id="adminProducts" class="product-grid"></section>
+          <div class="product-content">
+            <h3>${nombre}</h3>
+            <p>${descripcion}</p>
+            <p><strong>Categoría:</strong> ${categoria}</p>
+            <strong>$ ${Number(precio).toLocaleString()}</strong>
 
-  </main>
+            <br><br>
 
-  <script src="./js/admin.js?v=300"></script>
+            <button type="button" class="btn-editar">Editar</button>
+            <button type="button" class="btn-eliminar">Eliminar</button>
+          </div>
+        `;
 
-</body>
-</html>
+        card.querySelector(".btn-editar").addEventListener("click", () => {
+          productoEditandoId = id;
+
+          productName.value = nombre || "";
+          productCategory.value = String(categoryId || "");
+          productPrice.value = precio || "";
+          productImage.value = imagen || "";
+
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+          });
+        });
+
+        card.querySelector(".btn-eliminar").addEventListener("click", async () => {
+          const confirmar = confirm("¿Eliminar producto?");
+
+          if (!confirmar) return;
+
+          try {
+            const response = await fetch(`${API_URL}/products/${id}`, {
+              method: "DELETE"
+            });
+
+            if (!response.ok) {
+              alert("Error eliminando producto");
+              return;
+            }
+
+            alert("Producto eliminado correctamente");
+            cargarProductos();
+          } catch (error) {
+            console.error("Error eliminando producto:", error);
+            alert("Error eliminando producto");
+          }
+        });
+
+        adminProducts.appendChild(card);
+      });
+    } catch (error) {
+      console.error("Error cargando productos:", error);
+      adminProducts.innerHTML = "<p>Error cargando productos.</p>";
+    }
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const nombre = productName.value.trim();
+    const categoryId = Number(productCategory.value);
+    const precio = Number(productPrice.value);
+    const imagen = productImage.value.trim();
+
+    if (!nombre) {
+      alert("Ingresa el nombre del producto");
+      return;
+    }
+
+    if (!categoryId) {
+      alert("Selecciona una categoría");
+      return;
+    }
+
+    if (!precio) {
+      alert("Ingresa el precio del producto");
+      return;
+    }
+
+    const producto = {
+      name: nombre,
+      description: nombre,
+      price: precio,
+      stock: 10,
+      categoryId: categoryId,
+      image: imagen
+    };
+
+    let url = `${API_URL}/products`;
+    let method = "POST";
+
+    if (productoEditandoId) {
+      url = `${API_URL}/products/${productoEditandoId}`;
+      method = "PUT";
+    }
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(producto)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error("Error del backend:", errorData);
+        alert("Error guardando producto");
+        return;
+      }
+
+      alert(
+        productoEditandoId
+          ? "Producto actualizado correctamente"
+          : "Producto creado correctamente"
+      );
+
+      productoEditandoId = null;
+      form.reset();
+      cargarProductos();
+    } catch (error) {
+      console.error("Error guardando producto:", error);
+      alert("Error guardando producto");
+    }
+  });
+
+  cargarProductos();
+});
