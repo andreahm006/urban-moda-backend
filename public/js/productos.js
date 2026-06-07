@@ -19,22 +19,53 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function cargarProductos() {
-    const response = await fetchfetch("https://urban-moda-backend.onrender.com/products");
-    productos = await response.json();
-    mostrarProductos(productos);
-    actualizarContadorCarrito();
+    try {
+      const response = await fetch("https://urban-moda-backend.onrender.com/products");
+
+      if (!response.ok) {
+        throw new Error("No se pudieron cargar los productos");
+      }
+
+      productos = await response.json();
+
+      console.log("Productos cargados:", productos);
+
+      mostrarProductos(productos);
+      actualizarContadorCarrito();
+    } catch (error) {
+      console.error("Error cargando productos:", error);
+
+      if (productsGrid) {
+        productsGrid.innerHTML = `
+          <p style="padding: 20px;">
+            No se pudieron cargar los productos. Intenta nuevamente.
+          </p>
+        `;
+      }
+    }
   }
 
   function mostrarProductos(lista) {
     productsGrid.innerHTML = "";
 
+    if (!lista || lista.length === 0) {
+      productsGrid.innerHTML = `
+        <p style="padding: 20px;">
+          No hay productos disponibles para mostrar.
+        </p>
+      `;
+      return;
+    }
+
     lista.forEach((producto) => {
       const nombre = producto.name || producto.nombre;
-      const descripcion = producto.description || producto.descripcion || "Producto Urban Moda";
+      const descripcion =
+        producto.description || producto.descripcion || "Producto Urban Moda";
       const precio = producto.price || producto.precio || 0;
       const stock = producto.stock || 0;
       const categoria = producto.category || producto.nombre_categoria || "Ropa";
-      const imagen = producto.image || producto.imagen || "https://placehold.co/300x400";
+      const imagen =
+        producto.image || producto.imagen || "https://placehold.co/300x400";
       const id = producto.id || producto.id_producto;
 
       const card = document.createElement("article");
@@ -42,19 +73,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
       card.innerHTML = `
         <div class="product-image">
-          <img src="${imagen}" alt="${nombre}" style="width:100%; height:320px; object-fit:cover; border-radius:20px;">
+          <img 
+            src="${imagen}" 
+            alt="${nombre}" 
+            style="width:100%; height:320px; object-fit:cover; border-radius:20px;"
+          >
         </div>
 
         <div class="product-content">
           <h3>${nombre}</h3>
+
           <div class="product-meta">
             <span>${categoria}</span>
             <span>Stock: ${stock}</span>
           </div>
+
           <p>${descripcion}</p>
+
           <div class="product-footer">
             <strong>$ ${Number(precio).toLocaleString()}</strong>
-            <button onclick="agregarAlCarrito(${id})">Agregar al carrito</button>
+            <button onclick="agregarAlCarrito(${id})">
+              Agregar al carrito
+            </button>
           </div>
         </div>
       `;
@@ -100,7 +140,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (productoEnCarrito) {
-      productoEnCarrito.quantity = Number(productoEnCarrito.quantity || 1) + 1;
+      productoEnCarrito.quantity =
+        Number(productoEnCarrito.quantity || 1) + 1;
     } else {
       carrito.push({
         ...producto,
