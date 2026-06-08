@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Carrito | Urban Moda</title>
-  <link rel="stylesheet" href="./css/styles.css?v=400">
+  <link rel="stylesheet" href="./css/styles.css?v=401">
 </head>
 
 <body>
@@ -14,17 +14,15 @@
     <nav id="menu">
       <a href="index.html">Inicio</a>
       <a href="productos.html">Productos</a>
-      <a href="carrito.html">
+
+      <a href="carrito.html" id="cartLink">
         Carrito <span id="cartCount" class="badge">0</span>
       </a>
 
       <a href="admin.html" id="adminLink" class="hidden">Admin</a>
 
       <a href="login.html" class="btn-nav" id="loginLink">Ingresar</a>
-
-      <button class="logout-btn hidden" id="logoutBtn">
-        Salir
-      </button>
+      <button class="logout-btn hidden" id="logoutBtn">Salir</button>
     </nav>
   </header>
 
@@ -32,7 +30,9 @@
     <section class="section-title">
       <span>CARRITO</span>
       <h1>Tu carrito de compras</h1>
-      <p>Revisa los productos seleccionados antes de finalizar tu compra.</p>
+      <p>
+        Revisa tus productos seleccionados antes de finalizar tu compra.
+      </p>
     </section>
 
     <section class="cart-container">
@@ -42,7 +42,7 @@
         <div class="coupon-box">
           <input
             type="text"
-            id="cupon"
+            id="cuponInput"
             placeholder="Cupón de descuento"
           >
 
@@ -66,12 +66,12 @@
         <div class="total-box">
           <p>
             <strong>Subtotal:</strong>
-            <span id="subtotal">$ 0</span>
+            $ <span id="subtotal">0</span>
           </p>
 
           <p>
             <strong>Total:</strong>
-            <span id="total">$ 0</span>
+            $ <span id="total">0</span>
           </p>
         </div>
 
@@ -88,8 +88,12 @@
     </section>
   </main>
 
+  <footer>
+    <p>Urban Moda · Tienda de moda virtual</p>
+  </footer>
+
   <script src="./js/api.js"></script>
-  <script src="./js/main.js?v=305"></script>
-  <script src="./js/carrito.js?v=108"></script>
+  <script src="./js/main.js?v=306"></script>
+  <script src="./js/carrito.js?v=307"></script>
 </body>
 </html>

@@ -1,7 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const API_URL = "https://urban-moda-backend.onrender.com";
+
   const productsGrid = document.getElementById("productsGrid");
   const searchInput = document.getElementById("searchInput");
   const categoryFilter = document.getElementById("categoryFilter");
+
   const catalogTag = document.getElementById("catalogTag");
   const catalogTitle = document.getElementById("catalogTitle");
   const catalogDescription = document.getElementById("catalogDescription");
@@ -11,7 +14,23 @@ document.addEventListener("DOMContentLoaded", () => {
   function normalizeText(value) {
     return String(value || "")
       .trim()
-      .toLowerCase();
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function normalizeCategory(value) {
+    const categoria = normalizeText(value);
+
+    if (categoria.includes("camisa")) return "camisas";
+    if (categoria.includes("pantal")) return "pantalones";
+    if (categoria.includes("buzo")) return "buzos";
+    if (categoria.includes("chaqueta")) return "chaquetas";
+    if (categoria.includes("blusa")) return "blusas";
+    if (categoria.includes("falda")) return "faldas";
+    if (categoria.includes("outlet")) return "outlet";
+
+    return categoria || "todos";
   }
 
   function getUser() {
@@ -70,9 +89,57 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function actualizarTituloCatalogo(categoria) {
-    const categoriaNormalizada = normalizeText(categoria);
-
     if (!catalogTag || !catalogTitle || !catalogDescription) return;
+
+    const categoriaNormalizada = normalizeCategory(categoria);
+
+    if (categoriaNormalizada === "camisas") {
+      catalogTag.textContent = "CAMISAS";
+      catalogTitle.textContent = "Camisas urbanas";
+      catalogDescription.textContent =
+        "Básicas, estampadas, urbanas y fáciles de combinar.";
+      return;
+    }
+
+    if (categoriaNormalizada === "pantalones") {
+      catalogTag.textContent = "PANTALONES";
+      catalogTitle.textContent = "Pantalones disponibles";
+      catalogDescription.textContent =
+        "Joggers, jeans y estilos cómodos para el día a día.";
+      return;
+    }
+
+    if (categoriaNormalizada === "buzos") {
+      catalogTag.textContent = "BUZOS";
+      catalogTitle.textContent = "Buzos urbanos";
+      catalogDescription.textContent =
+        "Prendas cómodas, modernas y perfectas para looks casuales.";
+      return;
+    }
+
+    if (categoriaNormalizada === "chaquetas") {
+      catalogTag.textContent = "CHAQUETAS";
+      catalogTitle.textContent = "Chaquetas con estilo";
+      catalogDescription.textContent =
+        "Prendas con actitud para elevar cualquier outfit.";
+      return;
+    }
+
+    if (categoriaNormalizada === "blusas") {
+      catalogTag.textContent = "BLUSAS";
+      catalogTitle.textContent = "Blusas disponibles";
+      catalogDescription.textContent =
+        "Diseños frescos, femeninos y fáciles de combinar.";
+      return;
+    }
+
+    if (categoriaNormalizada === "faldas") {
+      catalogTag.textContent = "FALDAS";
+      catalogTitle.textContent = "Faldas urbanas";
+      catalogDescription.textContent =
+        "Prendas modernas para looks casuales y sofisticados.";
+      return;
+    }
 
     if (categoriaNormalizada === "outlet") {
       catalogTag.textContent = "OUTLET";
@@ -90,7 +157,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function cargarProductos() {
     try {
-      const response = await fetch("https://urban-moda-backend.onrender.com/products");
+      if (productsGrid) {
+        productsGrid.innerHTML = "<p>Cargando productos...</p>";
+      }
+
+      const response = await fetch(`${API_URL}/products`);
 
       if (!response.ok) {
         throw new Error("No se pudieron cargar los productos");
@@ -100,17 +171,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const params = new URLSearchParams(window.location.search);
       const categoriaURL = params.get("categoria");
+      const categoriaSeleccionada = categoriaURL
+        ? normalizeCategory(categoriaURL)
+        : "todos";
 
-      if (categoriaURL && categoryFilter) {
-        const categoriaNormalizada = normalizeText(categoriaURL);
-
-        categoryFilter.value = categoriaNormalizada;
-        actualizarTituloCatalogo(categoriaNormalizada);
-        filtrarProductos();
-      } else {
-        actualizarTituloCatalogo("todos");
-        mostrarProductos(productos);
+      if (categoryFilter) {
+        categoryFilter.value = categoriaSeleccionada;
       }
+
+      actualizarTituloCatalogo(categoriaSeleccionada);
+      filtrarProductos();
 
       actualizarContadorCarrito();
     } catch (error) {
@@ -141,14 +211,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     lista.forEach((producto) => {
-      const nombre = producto.name || producto.nombre || "Producto";
+      const id = producto.id || producto.id_producto;
+
+      const nombre =
+        producto.name ||
+        producto.nombre ||
+        "Producto";
+
       const descripcion =
-        producto.description || producto.descripcion || "Producto Urban Moda";
+        producto.description ||
+        producto.descripcion ||
+        "Producto Urban Moda";
 
-      const precio = producto.price || producto.precio || 0;
+      const precio =
+        producto.price ||
+        producto.precio ||
+        0;
+
       const stock = Number(producto.stock || 0);
-
-      const disponibilidad = obtenerDisponibilidad(stock);
 
       const categoria =
         producto.category ||
@@ -160,15 +240,15 @@ document.addEventListener("DOMContentLoaded", () => {
         producto.imagen ||
         "https://placehold.co/300x400";
 
-      const id = producto.id || producto.id_producto;
+      const disponibilidad = obtenerDisponibilidad(stock);
 
       const card = document.createElement("article");
       card.classList.add("product-card");
 
       card.innerHTML = `
         <div class="product-image">
-          <img 
-            src="${imagen}" 
+          <img
+            src="${imagen}"
             alt="${nombre}"
           >
         </div>
@@ -186,8 +266,8 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="product-footer">
             <strong>$ ${Number(precio).toLocaleString()}</strong>
 
-            <button 
-              type="button" 
+            <button
+              type="button"
               onclick="agregarAlCarrito(${id})"
               ${stock <= 0 ? "disabled" : ""}
             >
@@ -203,26 +283,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function filtrarProductos() {
     const texto = searchInput ? normalizeText(searchInput.value) : "";
+
     const categoriaFiltro = categoryFilter
-      ? normalizeText(categoryFilter.value)
+      ? normalizeCategory(categoryFilter.value)
       : "todos";
 
     actualizarTituloCatalogo(categoriaFiltro);
 
     const filtrados = productos.filter((producto) => {
-      const nombre = normalizeText(producto.name || producto.nombre || "");
+      const nombre = normalizeText(
+        producto.name ||
+        producto.nombre ||
+        ""
+      );
 
-      const categoria = normalizeText(
+      const descripcion = normalizeText(
+        producto.description ||
+        producto.descripcion ||
+        ""
+      );
+
+      const categoriaProducto = normalizeCategory(
         producto.category ||
         producto.nombre_categoria ||
         ""
       );
 
-      const coincideTexto = nombre.includes(texto);
+      const coincideTexto =
+        nombre.includes(texto) ||
+        descripcion.includes(texto);
 
       const coincideCategoria =
         categoriaFiltro === "todos" ||
-        categoria === categoriaFiltro;
+        categoriaProducto === categoriaFiltro;
 
       return coincideTexto && coincideCategoria;
     });
@@ -280,7 +373,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (categoryFilter) {
-    categoryFilter.addEventListener("change", filtrarProductos);
+    categoryFilter.addEventListener("change", () => {
+      const categoria = normalizeCategory(categoryFilter.value);
+      actualizarTituloCatalogo(categoria);
+      filtrarProductos();
+    });
   }
 
   actualizarContadorCarrito();

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pasarela de pago | Urban Moda</title>
-  <link rel="stylesheet" href="./css/styles.css?v=400">
+  <link rel="stylesheet" href="./css/styles.css?v=401">
 </head>
 
 <body>
@@ -14,32 +14,29 @@
     <nav id="menu">
       <a href="index.html">Inicio</a>
       <a href="productos.html">Productos</a>
-      <a href="carrito.html">
+
+      <a href="carrito.html" id="cartLink">
         Carrito <span id="cartCount" class="badge">0</span>
       </a>
 
       <a href="admin.html" id="adminLink" class="hidden">Admin</a>
 
       <a href="login.html" class="btn-nav" id="loginLink">Ingresar</a>
-
-      <button class="logout-btn hidden" id="logoutBtn">
-        Salir
-      </button>
+      <button class="logout-btn hidden" id="logoutBtn">Salir</button>
     </nav>
   </header>
 
   <main class="auth-page">
     <section class="auth-text">
       <p class="tag">PAGO EN LÍNEA</p>
-      <h1>Pasarela de pagos simulada</h1>
+      <h1>Confirma tu pago de forma segura</h1>
       <p>
-        Esta pantalla representa el flujo de pago en línea de Urban Moda.
-        Para el proyecto académico, el pago se confirma de forma simulada.
+        Completa la información de pago para finalizar tu compra en Urban Moda.
       </p>
     </section>
 
     <section class="auth-card">
-      <h2>Confirmar pago</h2>
+      <h2>Datos de pago</h2>
 
       <div id="orderSummary"></div>
 
@@ -88,8 +85,12 @@
     </section>
   </main>
 
+  <footer>
+    <p>Urban Moda · Tienda de moda virtual</p>
+  </footer>
+
   <script src="./js/api.js"></script>
-  <script src="./js/main.js?v=305"></script>
-  <script src="./js/pasarela.js?v=101"></script>
+  <script src="./js/main.js?v=306"></script>
+  <script src="./js/pasarela.js?v=102"></script>
 </body>
 </html>

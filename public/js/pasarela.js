@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
 
       const confirmar = confirm(
-        "Esta es una pasarela simulada. ¿Deseas confirmar el pago?"
+        "¿Deseas confirmar el pago y finalizar la compra?"
       );
 
       if (!confirmar) return;

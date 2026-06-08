@@ -2,11 +2,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const carritoLista = document.getElementById("carritoLista");
   const subtotalEl = document.getElementById("subtotal");
   const totalEl = document.getElementById("total");
+
+  const cuponInput = document.getElementById("cuponInput");
   const aplicarCuponBtn = document.getElementById("aplicarCupon");
   const finalizarCompraBtn = document.getElementById("finalizarCompra");
   const vaciarCarritoBtn = document.getElementById("vaciarCarrito");
-  const cuponInput = document.getElementById("cupon");
-  const cartCount = document.getElementById("cartCount");
+
   const paymentMethod = document.getElementById("paymentMethod");
   const paymentInfo = document.getElementById("paymentInfo");
 
@@ -35,16 +36,17 @@ document.addEventListener("DOMContentLoaded", () => {
     return JSON.parse(localStorage.getItem(cartKey)) || [];
   }
 
-  function saveCart(carrito) {
+  function saveCart(cart) {
     const cartKey = getCartKey();
-    localStorage.setItem(cartKey, JSON.stringify(carrito));
+    localStorage.setItem(cartKey, JSON.stringify(cart));
   }
 
   function formatPrice(value) {
-    return "$ " + Number(value || 0).toLocaleString();
+    return Number(value || 0).toLocaleString();
   }
 
   function actualizarContadorCarrito() {
+    const cartCount = document.getElementById("cartCount");
     const carrito = getCart();
 
     if (cartCount) {
@@ -56,13 +58,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function calcularSubtotal(carrito) {
+  function calcularSubtotal() {
+    const carrito = getCart();
+
     return carrito.reduce((total, item) => {
       const precio = Number(item.price || item.precio || 0);
       const cantidad = Number(item.quantity || 1);
 
       return total + precio * cantidad;
     }, 0);
+  }
+
+  function actualizarTotales() {
+    const subtotal = calcularSubtotal();
+    const total = Math.max(subtotal - descuento, 0);
+
+    if (subtotalEl) {
+      subtotalEl.textContent = formatPrice(subtotal);
+    }
+
+    if (totalEl) {
+      totalEl.textContent = formatPrice(total);
+    }
+
+    actualizarContadorCarrito();
   }
 
   function renderCarrito() {
@@ -72,17 +91,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     carritoLista.innerHTML = "";
 
-    if (carrito.length === 0) {
+    if (!carrito.length) {
       carritoLista.innerHTML = `
         <p style="padding: 20px;">
           Tu carrito está vacío.
         </p>
       `;
 
-      if (subtotalEl) subtotalEl.textContent = formatPrice(0);
-      if (totalEl) totalEl.textContent = formatPrice(0);
-
-      actualizarContadorCarrito();
+      descuento = 0;
+      actualizarTotales();
       return;
     }
 
@@ -93,45 +110,125 @@ document.addEventListener("DOMContentLoaded", () => {
       const imagen = item.image || item.imagen || "https://placehold.co/120x120";
       const subtotalProducto = precio * cantidad;
 
-      const itemDiv = document.createElement("article");
-      itemDiv.classList.add("cart-item");
+      const div = document.createElement("div");
+      div.classList.add("cart-item");
 
-      itemDiv.innerHTML = `
-        <div style="display:flex; gap:16px; align-items:center;">
-          <img 
-            src="${imagen}" 
-            alt="${nombre}" 
-            style="width:90px; height:90px; object-fit:cover; border-radius:16px;"
+      div.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 18px;">
+          <img
+            src="${imagen}"
+            alt="${nombre}"
+            style="width: 90px; height: 90px; object-fit: cover; border-radius: 14px;"
           >
 
           <div>
             <h3>${nombre}</h3>
-            <p>Precio: ${formatPrice(precio)}</p>
+            <p>Precio: $ ${formatPrice(precio)}</p>
             <p>Cantidad: ${cantidad}</p>
-            <strong>Subtotal: ${formatPrice(subtotalProducto)}</strong>
+            <p><strong>Subtotal:</strong> $ ${formatPrice(subtotalProducto)}</p>
           </div>
         </div>
 
-        <div style="display:flex; gap:8px; align-items:center;">
-          <button type="button" onclick="disminuirCantidad(${index})">-</button>
-          <button type="button" onclick="aumentarCantidad(${index})">+</button>
-          <button type="button" onclick="eliminarProductoCarrito(${index})">Eliminar</button>
+        <div>
+          <button type="button" class="btn-restar" data-index="${index}">-</button>
+          <button type="button" class="btn-sumar" data-index="${index}">+</button>
+          <button type="button" class="btn-eliminar" data-index="${index}">Eliminar</button>
         </div>
       `;
 
-      carritoLista.appendChild(itemDiv);
+      carritoLista.appendChild(div);
     });
 
-    const subtotal = calcularSubtotal(carrito);
-    const total = subtotal - descuento;
+    document.querySelectorAll(".btn-restar").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        restarProducto(Number(btn.dataset.index));
+      });
+    });
 
-    if (subtotalEl) subtotalEl.textContent = formatPrice(subtotal);
-    if (totalEl) totalEl.textContent = formatPrice(total < 0 ? 0 : total);
+    document.querySelectorAll(".btn-sumar").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        sumarProducto(Number(btn.dataset.index));
+      });
+    });
 
-    actualizarContadorCarrito();
+    document.querySelectorAll(".btn-eliminar").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        eliminarProducto(Number(btn.dataset.index));
+      });
+    });
+
+    actualizarTotales();
   }
 
-  function mostrarInfoPago() {
+  function sumarProducto(index) {
+    const carrito = getCart();
+
+    if (!carrito[index]) return;
+
+    const stock = Number(carrito[index].stock || 0);
+    const cantidadActual = Number(carrito[index].quantity || 1);
+
+    if (stock > 0 && cantidadActual >= stock) {
+      alert("No hay más unidades disponibles de este producto.");
+      return;
+    }
+
+    carrito[index].quantity = cantidadActual + 1;
+
+    saveCart(carrito);
+    renderCarrito();
+  }
+
+  function restarProducto(index) {
+    const carrito = getCart();
+
+    if (!carrito[index]) return;
+
+    const cantidadActual = Number(carrito[index].quantity || 1);
+
+    if (cantidadActual <= 1) {
+      carrito.splice(index, 1);
+    } else {
+      carrito[index].quantity = cantidadActual - 1;
+    }
+
+    saveCart(carrito);
+    renderCarrito();
+  }
+
+  function eliminarProducto(index) {
+    const carrito = getCart();
+
+    if (!carrito[index]) return;
+
+    carrito.splice(index, 1);
+
+    saveCart(carrito);
+    renderCarrito();
+  }
+
+  function aplicarCupon() {
+    const codigo = cuponInput ? cuponInput.value.trim().toUpperCase() : "";
+
+    const subtotal = calcularSubtotal();
+
+    if (!subtotal) {
+      alert("Tu carrito está vacío.");
+      return;
+    }
+
+    if (codigo === "URBAN10") {
+      descuento = Math.round(subtotal * 0.1);
+      alert("Cupón aplicado correctamente. Descuento del 10%.");
+    } else {
+      descuento = 0;
+      alert("Cupón no válido.");
+    }
+
+    actualizarTotales();
+  }
+
+  function actualizarInfoPago() {
     if (!paymentMethod || !paymentInfo) return;
 
     const metodo = paymentMethod.value;
@@ -139,143 +236,103 @@ document.addEventListener("DOMContentLoaded", () => {
     if (metodo === "contraentrega") {
       paymentInfo.textContent =
         "Pagarás el pedido al momento de recibirlo.";
-    } else if (metodo === "online") {
+      return;
+    }
+
+    if (metodo === "online") {
       paymentInfo.textContent =
-        "Al finalizar serás redirigido a la pasarela de pagos simulada.";
-    } else {
-      paymentInfo.textContent = "";
+        "Al finalizar serás redirigido a la pasarela de pagos.";
+      return;
+    }
+
+    paymentInfo.textContent = "";
+  }
+
+  function finalizarCompra() {
+    const user = getUser();
+    const carrito = getCart();
+    const metodoPago = paymentMethod ? paymentMethod.value : "";
+
+    if (!carrito.length) {
+      alert("Tu carrito está vacío.");
+      return;
+    }
+
+    if (!user) {
+      alert("Debes iniciar sesión para finalizar la compra.");
+      window.location.href = "login.html";
+      return;
+    }
+
+    if (!metodoPago) {
+      alert("Selecciona un método de pago.");
+      return;
+    }
+
+    const subtotal = calcularSubtotal();
+    const total = Math.max(subtotal - descuento, 0);
+
+    const orden = {
+      usuario: user,
+      productos: carrito,
+      subtotal,
+      descuento,
+      total,
+      metodoPago,
+      fecha: new Date().toISOString()
+    };
+
+    if (metodoPago === "online") {
+      localStorage.setItem("ordenPendiente", JSON.stringify(orden));
+      window.location.href = "pasarela.html";
+      return;
+    }
+
+    if (metodoPago === "contraentrega") {
+      localStorage.removeItem(getCartKey());
+      localStorage.removeItem("ordenPendiente");
+
+      alert("Compra registrada correctamente. Pagarás al recibir tu pedido.");
+
+      window.location.href = "productos.html";
     }
   }
 
-  window.aumentarCantidad = function (index) {
+  function vaciarCarrito() {
     const carrito = getCart();
 
-    if (!carrito[index]) return;
-
-    carrito[index].quantity = Number(carrito[index].quantity || 1) + 1;
-
-    saveCart(carrito);
-    renderCarrito();
-  };
-
-  window.disminuirCantidad = function (index) {
-    const carrito = getCart();
-
-    if (!carrito[index]) return;
-
-    carrito[index].quantity = Number(carrito[index].quantity || 1) - 1;
-
-    if (carrito[index].quantity <= 0) {
-      carrito.splice(index, 1);
+    if (!carrito.length) {
+      alert("Tu carrito ya está vacío.");
+      return;
     }
 
-    saveCart(carrito);
+    const confirmar = confirm("¿Deseas vaciar el carrito?");
+
+    if (!confirmar) return;
+
+    localStorage.removeItem(getCartKey());
+    descuento = 0;
+
     renderCarrito();
-  };
-
-  window.eliminarProductoCarrito = function (index) {
-    const carrito = getCart();
-
-    carrito.splice(index, 1);
-
-    saveCart(carrito);
-    renderCarrito();
-  };
-
-  if (paymentMethod) {
-    paymentMethod.addEventListener("change", mostrarInfoPago);
   }
 
   if (aplicarCuponBtn) {
-    aplicarCuponBtn.addEventListener("click", () => {
-      const cupon = cuponInput ? cuponInput.value.trim().toUpperCase() : "";
-
-      if (cupon === "URBAN10") {
-        const subtotal = calcularSubtotal(getCart());
-        descuento = subtotal * 0.1;
-        alert("Cupón aplicado: 10% de descuento");
-      } else {
-        descuento = 0;
-        alert("Cupón inválido");
-      }
-
-      renderCarrito();
-    });
-  }
-
-  if (vaciarCarritoBtn) {
-    vaciarCarritoBtn.addEventListener("click", () => {
-      const confirmar = confirm("¿Deseas vaciar el carrito?");
-
-      if (!confirmar) return;
-
-      saveCart([]);
-      descuento = 0;
-      renderCarrito();
-    });
+    aplicarCuponBtn.addEventListener("click", aplicarCupon);
   }
 
   if (finalizarCompraBtn) {
-    finalizarCompraBtn.addEventListener("click", () => {
-      const carrito = getCart();
-
-      if (carrito.length === 0) {
-        alert("Tu carrito está vacío");
-        return;
-      }
-
-      const user = getUser();
-
-      if (!user) {
-        const irLogin = confirm(
-          "Para finalizar la compra debes iniciar sesión o registrarte. Tu carrito se conservará."
-        );
-
-        if (irLogin) {
-          localStorage.setItem("redirectAfterLogin", "carrito.html");
-          window.location.href = "login.html";
-        }
-
-        return;
-      }
-
-      const metodoPago = paymentMethod ? paymentMethod.value : "";
-
-      if (!metodoPago) {
-        alert("Selecciona un método de pago antes de finalizar la compra");
-        return;
-      }
-
-      const subtotal = calcularSubtotal(carrito);
-      const total = subtotal - descuento;
-
-      const orden = {
-        usuario: user,
-        productos: carrito,
-        metodoPago,
-        subtotal,
-        descuento,
-        total: total < 0 ? 0 : total,
-        fecha: new Date().toLocaleString()
-      };
-
-      localStorage.setItem("ordenPendiente", JSON.stringify(orden));
-
-      if (metodoPago === "online") {
-        window.location.href = "pasarela.html";
-        return;
-      }
-
-      if (metodoPago === "contraentrega") {
-        alert("Compra finalizada correctamente. Pagarás al recibir tu pedido.");
-
-        saveCart([]);
-        descuento = 0;
-        localStorage.removeItem("ordenPendiente");
-        renderCarrito();
-      }
-    });
+    finalizarCompraBtn.addEventListener("click", finalizarCompra);
   }
 
+  if (vaciarCarritoBtn) {
+    vaciarCarritoBtn.addEventListener("click", vaciarCarrito);
+  }
+
+  if (paymentMethod) {
+    paymentMethod.addEventListener("change", actualizarInfoPago);
+  }
+
+  actualizarContadorCarrito();
+  actualizarInfoPago();
   renderCarrito();
 });
