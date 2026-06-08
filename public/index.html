@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Urban Moda | Tienda Virtual</title>
-  <link rel="stylesheet" href="css/styles.css?v=400">
+  <link rel="stylesheet" href="css/styles.css?v=401">
 </head>
 
 <body>
@@ -16,7 +16,7 @@
       <a href="index.html">Inicio</a>
       <a href="productos.html">Productos</a>
 
-      <a href="carrito.html">
+      <a href="carrito.html" id="cartLink">
         Carrito <span id="cartCount" class="badge">0</span>
       </a>
 
@@ -30,13 +30,13 @@
   <main>
     <section class="hero">
       <div class="hero-text">
-        <p class="tag">Proyecto SENA · Tienda de moda virtual</p>
+        <p class="tag">URBAN MODA · ESTILO UNISEX</p>
 
         <h1>Moda urbana, sencilla y para toda la familia</h1>
 
         <p>
           Urban Moda combina prendas cómodas, colores neutros y un estilo juvenil.
-          El diseño es claro, funcional y pensado como proyecto académico de desarrollo web.
+          Una tienda virtual moderna, clara y pensada para comprar fácil desde cualquier lugar.
         </p>
 
         <div class="hero-buttons">
@@ -45,21 +45,29 @@
         </div>
       </div>
 
-      <div class="hero-showcase">
+      <div class="hero-showcase home-showcase-image">
         <div class="floating-card card-one">
           <span>Street</span>
-          <strong>Casual</strong>
+          <strong>Unisex</strong>
         </div>
 
-        <a href="productos.html?categoria=outlet" class="model-card">
-          <div class="model-figure">🏷️</div>
-          <h2>Outlet urbano</h2>
-          <p>Prendas seleccionadas con precios especiales.</p>
+        <a href="productos.html?categoria=outlet" class="model-card home-fashion-card">
+          <img
+            src="images/moda-unisex-home.png"
+            alt="Moda urbana unisex Urban Moda"
+            class="home-fashion-img"
+          >
+
+          <div class="home-fashion-text">
+            <span>Rebajas</span>
+            <h2>Outlet urbano</h2>
+            <p>Prendas con actitud, color y precios especiales.</p>
+          </div>
         </a>
 
         <div class="floating-card card-two">
-          <span>Rebajas</span>
-          <strong>Outlet</strong>
+          <span>Color</span>
+          <strong>Estilo</strong>
         </div>
       </div>
     </section>
@@ -74,19 +82,19 @@
         <a class="category-card" href="productos.html?categoria=Camisas">
           <div>👕</div>
           <h3>Camisas</h3>
-          <p>Básicas, urbanas y fáciles de combinar.</p>
+          <p>Básicas, estampadas, urbanas y fáciles de combinar.</p>
         </a>
 
         <a class="category-card" href="productos.html?categoria=Chaquetas">
           <div>🧥</div>
           <h3>Chaquetas</h3>
-          <p>Prendas con actitud para el día a día.</p>
+          <p>Prendas con actitud para elevar cualquier outfit.</p>
         </a>
 
         <a class="category-card" href="productos.html?categoria=Pantalones">
           <div>👖</div>
           <h3>Pantalones</h3>
-          <p>Estilo cargo, jeans y joggers cómodos.</p>
+          <p>Joggers, jeans y estilos cómodos para el día a día.</p>
         </a>
 
         <a class="category-card" href="productos.html?categoria=outlet">
@@ -99,12 +107,12 @@
 
     <section class="banner">
       <div>
-        <p class="tag">Diseño de aprendiz</p>
+        <p class="tag">Diseño moderno</p>
         <h2>Sencillo, entendible y llamativo</h2>
 
         <p>
-          No busca parecer una tienda de experto, sino un proyecto ordenado,
-          bonito y funcional para presentar en formación.
+          Una tienda virtual con catálogo, carrito de compras, roles de usuario,
+          administración de productos y una experiencia visual más chic.
         </p>
       </div>
 
@@ -113,10 +121,10 @@
   </main>
 
   <footer>
-    <p>Urban Moda · Proyecto Tienda Moda Virtual · Aprendiz SENA</p>
+    <p>Urban Moda · Tienda de moda virtual</p>
   </footer>
 
   <script src="js/api.js"></script>
-  <script src="js/main.js?v=305"></script>
+  <script src="js/main.js?v=306"></script>
 </body>
 </html>
