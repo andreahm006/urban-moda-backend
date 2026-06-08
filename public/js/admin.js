@@ -1,17 +1,45 @@
 document.addEventListener("DOMContentLoaded", () => {
   const API_URL = "https://urban-moda-backend.onrender.com";
 
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+
+  if (!user || user.role !== "admin") {
+    alert("Acceso permitido solo para administrador");
+    window.location.href = "productos.html";
+    return;
+  }
+
   const form = document.getElementById("productoForm");
   const adminProducts = document.getElementById("adminProducts");
 
   const productName = document.getElementById("productName");
+  const productDescription = document.getElementById("productDescription");
   const productCategory = document.getElementById("productCategory");
   const productPrice = document.getElementById("productPrice");
+  const productStock = document.getElementById("productStock");
   const productImage = document.getElementById("productImage");
+
+  const saveProductBtn = document.getElementById("saveProductBtn");
+  const cancelEditBtn = document.getElementById("cancelEditBtn");
 
   let productoEditandoId = null;
 
+  function limpiarFormulario() {
+    productoEditandoId = null;
+    form.reset();
+
+    if (saveProductBtn) {
+      saveProductBtn.textContent = "Guardar producto";
+    }
+
+    if (cancelEditBtn) {
+      cancelEditBtn.classList.add("hidden");
+    }
+  }
+
   async function cargarProductos() {
+    if (!adminProducts) return;
+
     adminProducts.innerHTML = "<p>Cargando productos...</p>";
 
     try {
@@ -31,13 +59,30 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       productos.forEach((producto) => {
-        const id = producto.id;
-        const nombre = producto.name;
-        const descripcion = producto.description || producto.name;
-        const precio = producto.price || 0;
-        const categoria = producto.category || "Sin categoría";
-        const categoryId = producto.categoryId;
-        const imagen = producto.image || "https://placehold.co/300x400";
+        const id = producto.id || producto.id_producto;
+        const nombre = producto.name || producto.nombre || "Producto";
+        const descripcion =
+          producto.description ||
+          producto.descripcion ||
+          "Producto Urban Moda";
+
+        const precio = producto.price || producto.precio || 0;
+        const stock = producto.stock || 0;
+
+        const categoria =
+          producto.category ||
+          producto.nombre_categoria ||
+          "Sin categoría";
+
+        const categoryId =
+          producto.categoryId ||
+          producto.id_categoria ||
+          "";
+
+        const imagen =
+          producto.image ||
+          producto.imagen ||
+          "https://placehold.co/300x400";
 
         const card = document.createElement("article");
         card.classList.add("product-card");
@@ -47,20 +92,33 @@ document.addEventListener("DOMContentLoaded", () => {
             <img
               src="${imagen}"
               alt="${nombre}"
-              style="width:100%; height:300px; object-fit:cover; border-radius:20px;"
             >
           </div>
 
           <div class="product-content">
             <h3>${nombre}</h3>
+
             <p>${descripcion}</p>
-            <p><strong>Categoría:</strong> ${categoria}</p>
+
+            <p>
+              <strong>Categoría:</strong> ${categoria}
+            </p>
+
+            <p>
+              <strong>Stock:</strong> ${stock}
+            </p>
+
             <strong>$ ${Number(precio).toLocaleString()}</strong>
 
             <br><br>
 
-            <button type="button" class="btn-editar">Editar</button>
-            <button type="button" class="btn-eliminar">Eliminar</button>
+            <button type="button" class="btn-editar">
+              Editar
+            </button>
+
+            <button type="button" class="btn-eliminar">
+              Eliminar
+            </button>
           </div>
         `;
 
@@ -68,9 +126,19 @@ document.addEventListener("DOMContentLoaded", () => {
           productoEditandoId = id;
 
           productName.value = nombre || "";
+          productDescription.value = descripcion || "";
           productCategory.value = String(categoryId || "");
           productPrice.value = precio || "";
+          productStock.value = stock || "";
           productImage.value = imagen || "";
+
+          if (saveProductBtn) {
+            saveProductBtn.textContent = "Actualizar producto";
+          }
+
+          if (cancelEditBtn) {
+            cancelEditBtn.classList.remove("hidden");
+          }
 
           window.scrollTo({
             top: 0,
@@ -79,7 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         card.querySelector(".btn-eliminar").addEventListener("click", async () => {
-          const confirmar = confirm("¿Eliminar producto?");
+          const confirmar = confirm(`¿Deseas eliminar el producto "${nombre}"?`);
 
           if (!confirmar) return;
 
@@ -89,6 +157,8 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (!response.ok) {
+              const errorData = await response.json().catch(() => null);
+              console.error("Error del backend:", errorData);
               alert("Error eliminando producto");
               return;
             }
@@ -113,12 +183,19 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     const nombre = productName.value.trim();
+    const descripcion = productDescription.value.trim();
     const categoryId = Number(productCategory.value);
     const precio = Number(productPrice.value);
+    const stock = Number(productStock.value);
     const imagen = productImage.value.trim();
 
     if (!nombre) {
       alert("Ingresa el nombre del producto");
+      return;
+    }
+
+    if (!descripcion) {
+      alert("Ingresa la descripción del producto");
       return;
     }
 
@@ -127,16 +204,21 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (!precio) {
-      alert("Ingresa el precio del producto");
+    if (!precio || precio <= 0) {
+      alert("Ingresa un precio válido");
+      return;
+    }
+
+    if (stock < 0 || Number.isNaN(stock)) {
+      alert("Ingresa un stock válido");
       return;
     }
 
     const producto = {
       name: nombre,
-      description: nombre,
+      description: descripcion,
       price: precio,
-      stock: 10,
+      stock: stock,
       categoryId: categoryId,
       image: imagen
     };
@@ -171,14 +253,19 @@ document.addEventListener("DOMContentLoaded", () => {
           : "Producto creado correctamente"
       );
 
-      productoEditandoId = null;
-      form.reset();
+      limpiarFormulario();
       cargarProductos();
     } catch (error) {
       console.error("Error guardando producto:", error);
       alert("Error guardando producto");
     }
   });
+
+  if (cancelEditBtn) {
+    cancelEditBtn.addEventListener("click", () => {
+      limpiarFormulario();
+    });
+  }
 
   cargarProductos();
 });

@@ -2,12 +2,49 @@ document.addEventListener("DOMContentLoaded", () => {
   const productsGrid = document.getElementById("productsGrid");
   const searchInput = document.getElementById("searchInput");
   const categoryFilter = document.getElementById("categoryFilter");
+  const catalogTag = document.getElementById("catalogTag");
+  const catalogTitle = document.getElementById("catalogTitle");
+  const catalogDescription = document.getElementById("catalogDescription");
 
   let productos = [];
 
+  function normalizeText(value) {
+    return String(value || "")
+      .trim()
+      .toLowerCase();
+  }
+
+  function getUser() {
+    return JSON.parse(localStorage.getItem("user") || "null");
+  }
+
+  function getCartKey() {
+    const user = getUser();
+
+    if (user && user.id) {
+      return `carrito_user_${user.id}`;
+    }
+
+    if (user && user.email) {
+      return `carrito_user_${user.email}`;
+    }
+
+    return "carrito_guest";
+  }
+
+  function getCart() {
+    const cartKey = getCartKey();
+    return JSON.parse(localStorage.getItem(cartKey)) || [];
+  }
+
+  function saveCart(carrito) {
+    const cartKey = getCartKey();
+    localStorage.setItem(cartKey, JSON.stringify(carrito));
+  }
+
   function actualizarContadorCarrito() {
     const cartCount = document.getElementById("cartCount");
-    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+    const carrito = getCart();
 
     if (cartCount) {
       const cantidad = carrito.reduce((total, item) => {
@@ -16,6 +53,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
       cartCount.textContent = cantidad;
     }
+  }
+
+  function obtenerDisponibilidad(stock) {
+    const cantidad = Number(stock || 0);
+
+    if (cantidad <= 0) {
+      return "Agotado";
+    }
+
+    if (cantidad <= 3) {
+      return "Últimas unidades";
+    }
+
+    return "Disponible";
+  }
+
+  function actualizarTituloCatalogo(categoria) {
+    const categoriaNormalizada = normalizeText(categoria);
+
+    if (!catalogTag || !catalogTitle || !catalogDescription) return;
+
+    if (categoriaNormalizada === "outlet") {
+      catalogTag.textContent = "OUTLET";
+      catalogTitle.textContent = "Outlet urbano";
+      catalogDescription.textContent =
+        "Prendas seleccionadas con precios especiales.";
+      return;
+    }
+
+    catalogTag.textContent = "CATÁLOGO";
+    catalogTitle.textContent = "Productos disponibles";
+    catalogDescription.textContent =
+      "Prendas con estilo urbano, colores neutros y uso familiar.";
   }
 
   async function cargarProductos() {
@@ -32,9 +102,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const categoriaURL = params.get("categoria");
 
       if (categoriaURL && categoryFilter) {
-        categoryFilter.value = categoriaURL;
+        const categoriaNormalizada = normalizeText(categoriaURL);
+
+        categoryFilter.value = categoriaNormalizada;
+        actualizarTituloCatalogo(categoriaNormalizada);
         filtrarProductos();
       } else {
+        actualizarTituloCatalogo("todos");
         mostrarProductos(productos);
       }
 
@@ -53,6 +127,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function mostrarProductos(lista) {
+    if (!productsGrid) return;
+
     productsGrid.innerHTML = "";
 
     if (!lista || lista.length === 0) {
@@ -65,14 +141,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     lista.forEach((producto) => {
-      const nombre = producto.name || producto.nombre;
+      const nombre = producto.name || producto.nombre || "Producto";
       const descripcion =
         producto.description || producto.descripcion || "Producto Urban Moda";
+
       const precio = producto.price || producto.precio || 0;
-      const stock = producto.stock || 0;
-      const categoria = producto.category || producto.nombre_categoria || "Sin categoría";
+      const stock = Number(producto.stock || 0);
+
+      const disponibilidad = obtenerDisponibilidad(stock);
+
+      const categoria =
+        producto.category ||
+        producto.nombre_categoria ||
+        "Sin categoría";
+
       const imagen =
-        producto.image || producto.imagen || "https://placehold.co/300x400";
+        producto.image ||
+        producto.imagen ||
+        "https://placehold.co/300x400";
+
       const id = producto.id || producto.id_producto;
 
       const card = document.createElement("article");
@@ -82,8 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="product-image">
           <img 
             src="${imagen}" 
-            alt="${nombre}" 
-            style="width:100%; height:320px; object-fit:cover; border-radius:20px;"
+            alt="${nombre}"
           >
         </div>
 
@@ -92,15 +178,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
           <div class="product-meta">
             <span>${categoria}</span>
-            <span>Stock: ${stock}</span>
+            <span>${disponibilidad}</span>
           </div>
 
           <p>${descripcion}</p>
 
           <div class="product-footer">
             <strong>$ ${Number(precio).toLocaleString()}</strong>
-            <button onclick="agregarAlCarrito(${id})">
-              Agregar al carrito
+
+            <button 
+              type="button" 
+              onclick="agregarAlCarrito(${id})"
+              ${stock <= 0 ? "disabled" : ""}
+            >
+              ${stock <= 0 ? "Agotado" : "Agregar al carrito"}
             </button>
           </div>
         </div>
@@ -111,20 +202,29 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function filtrarProductos() {
-    const texto = searchInput ? searchInput.value.toLowerCase() : "";
-    const categoriaFiltro = categoryFilter ? categoryFilter.value : "todos";
+    const texto = searchInput ? normalizeText(searchInput.value) : "";
+    const categoriaFiltro = categoryFilter
+      ? normalizeText(categoryFilter.value)
+      : "todos";
+
+    actualizarTituloCatalogo(categoriaFiltro);
 
     const filtrados = productos.filter((producto) => {
-      const nombre = producto.name || producto.nombre || "";
-      const categoria = producto.category || producto.nombre_categoria || "";
+      const nombre = normalizeText(producto.name || producto.nombre || "");
 
-      return (
-        nombre.toLowerCase().includes(texto) &&
-        (
-          categoriaFiltro === "todos" ||
-          categoria.toLowerCase() === categoriaFiltro.toLowerCase()
-        )
+      const categoria = normalizeText(
+        producto.category ||
+        producto.nombre_categoria ||
+        ""
       );
+
+      const coincideTexto = nombre.includes(texto);
+
+      const coincideCategoria =
+        categoriaFiltro === "todos" ||
+        categoria === categoriaFiltro;
+
+      return coincideTexto && coincideCategoria;
     });
 
     mostrarProductos(filtrados);
@@ -140,15 +240,28 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+    const stock = Number(producto.stock || 0);
+
+    if (stock <= 0) {
+      alert("Este producto no está disponible");
+      return;
+    }
+
+    let carrito = getCart();
 
     const productoEnCarrito = carrito.find((item) => {
       return Number(item.id || item.id_producto) === Number(id);
     });
 
     if (productoEnCarrito) {
-      productoEnCarrito.quantity =
-        Number(productoEnCarrito.quantity || 1) + 1;
+      const nuevaCantidad = Number(productoEnCarrito.quantity || 1) + 1;
+
+      if (nuevaCantidad > stock) {
+        alert("No hay más unidades disponibles de este producto");
+        return;
+      }
+
+      productoEnCarrito.quantity = nuevaCantidad;
     } else {
       carrito.push({
         ...producto,
@@ -156,7 +269,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    localStorage.setItem("carrito", JSON.stringify(carrito));
+    saveCart(carrito);
     actualizarContadorCarrito();
 
     alert(`${producto.name || producto.nombre} agregado al carrito`);

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pasarela de pago | Urban Moda</title>
+  <link rel="stylesheet" href="./css/styles.css?v=400">
+</head>
+
+<body>
+  <header class="navbar">
+    <a class="logo" href="index.html">URBAN<span>MODA</span></a>
+
+    <nav id="menu">
+      <a href="index.html">Inicio</a>
+      <a href="productos.html">Productos</a>
+      <a href="carrito.html">
+        Carrito <span id="cartCount" class="badge">0</span>
+      </a>
+
+      <a href="admin.html" id="adminLink" class="hidden">Admin</a>
+
+      <a href="login.html" class="btn-nav" id="loginLink">Ingresar</a>
+
+      <button class="logout-btn hidden" id="logoutBtn">
+        Salir
+      </button>
+    </nav>
+  </header>
+
+  <main class="auth-page">
+    <section class="auth-text">
+      <p class="tag">PAGO EN LÍNEA</p>
+      <h1>Pasarela de pagos simulada</h1>
+      <p>
+        Esta pantalla representa el flujo de pago en línea de Urban Moda.
+        Para el proyecto académico, el pago se confirma de forma simulada.
+      </p>
+    </section>
+
+    <section class="auth-card">
+      <h2>Confirmar pago</h2>
+
+      <div id="orderSummary"></div>
+
+      <form id="paymentForm">
+        <label for="cardName">Nombre del titular</label>
+        <input
+          type="text"
+          id="cardName"
+          placeholder="Nombre completo"
+          required
+        >
+
+        <label for="cardNumber">Número de tarjeta</label>
+        <input
+          type="text"
+          id="cardNumber"
+          placeholder="0000 0000 0000 0000"
+          maxlength="19"
+          required
+        >
+
+        <label for="expiry">Fecha de vencimiento</label>
+        <input
+          type="text"
+          id="expiry"
+          placeholder="MM/AA"
+          maxlength="5"
+          required
+        >
+
+        <label for="cvv">CVV</label>
+        <input
+          type="password"
+          id="cvv"
+          placeholder="123"
+          maxlength="4"
+          required
+        >
+
+        <button type="submit" class="auth-button">
+          Confirmar pago
+        </button>
+      </form>
+
+      <p id="message"></p>
+    </section>
+  </main>
+
+  <script src="./js/api.js"></script>
+  <script src="./js/main.js?v=305"></script>
+  <script src="./js/pasarela.js?v=101"></script>
+</body>
+</html>

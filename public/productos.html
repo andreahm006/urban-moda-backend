@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Productos | Urban Moda</title>
-  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="./css/styles.css?v=306">
 </head>
 
 <body>
@@ -14,7 +14,8 @@
     <nav id="menu">
       <a href="index.html">Inicio</a>
       <a href="productos.html">Productos</a>
-      <a href="carrito.html">
+
+      <a href="carrito.html" id="cartLink">
         Carrito <span id="cartCount" class="badge">0</span>
       </a>
 
@@ -27,9 +28,11 @@
 
   <main class="container">
     <section class="section-title">
-      <span>CATÁLOGO</span>
-      <h1>Productos disponibles</h1>
-      <p>Prendas con estilo urbano, colores neutros y uso familiar.</p>
+      <span id="catalogTag">CATÁLOGO</span>
+      <h1 id="catalogTitle">Productos disponibles</h1>
+      <p id="catalogDescription">
+        Prendas con estilo urbano, colores neutros y uso familiar.
+      </p>
     </section>
 
     <section class="filters">
@@ -47,6 +50,7 @@
         <option value="Chaquetas">Chaquetas</option>
         <option value="Blusas">Blusas</option>
         <option value="Faldas">Faldas</option>
+        <option value="outlet">Outlet</option>
       </select>
     </section>
 
@@ -54,7 +58,7 @@
   </main>
 
   <script src="./js/api.js"></script>
-  <script src="./js/main.js?v=303"></script>
-  <script src="./js/productos.js?v=103"></script>
+  <script src="./js/main.js?v=306"></script>
+  <script src="./js/productos.js?v=107"></script>
 </body>
 </html>

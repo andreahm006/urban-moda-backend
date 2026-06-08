@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const logoutBtn = document.getElementById("logoutBtn");
   const adminLink = document.getElementById("adminLink");
   const cartCount = document.getElementById("cartCount");
+  const cartLink = document.getElementById("cartLink");
   const registerButton = document.getElementById("registerButton");
   const registerLink = document.getElementById("registerLink");
 
@@ -14,14 +15,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const user = JSON.parse(localStorage.getItem("user") || "null");
 
-  if (menuBtn && menu) {
-    menuBtn.addEventListener("click", () => {
-      menu.classList.toggle("active");
-    });
+  function getCartKey() {
+    if (user && user.id) {
+      return `carrito_user_${user.id}`;
+    }
+
+    if (user && user.email) {
+      return `carrito_user_${user.email}`;
+    }
+
+    return "carrito_guest";
   }
 
-  if (cartCount) {
-    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+  function actualizarContadorCarrito() {
+    if (!cartCount) return;
+
+    const cartKey = getCartKey();
+    const carrito = JSON.parse(localStorage.getItem(cartKey)) || [];
 
     const cantidad = carrito.reduce((total, item) => {
       return total + Number(item.quantity || 1);
@@ -29,6 +39,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     cartCount.textContent = cantidad;
   }
+
+  if (menuBtn && menu) {
+    menuBtn.addEventListener("click", () => {
+      menu.classList.toggle("active");
+    });
+  }
+
+  actualizarContadorCarrito();
 
   if (token && user) {
     const nombreUsuario = user.name || user.email || "Usuario";
@@ -44,6 +62,14 @@ document.addEventListener("DOMContentLoaded", () => {
         adminLink.classList.remove("hidden");
       } else {
         adminLink.classList.add("hidden");
+      }
+    }
+
+    if (cartLink) {
+      if (user.role === "admin") {
+        cartLink.classList.add("hidden");
+      } else {
+        cartLink.classList.remove("hidden");
       }
     }
 
@@ -79,6 +105,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (adminLink) {
       adminLink.classList.add("hidden");
+    }
+
+    if (cartLink) {
+      cartLink.classList.remove("hidden");
     }
 
     if (registerButton) {

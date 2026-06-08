@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Urban Moda | Tienda Virtual</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css?v=400">
 </head>
 
 <body>
@@ -15,6 +15,7 @@
     <nav id="menu">
       <a href="index.html">Inicio</a>
       <a href="productos.html">Productos</a>
+
       <a href="carrito.html">
         Carrito <span id="cartCount" class="badge">0</span>
       </a>
@@ -50,15 +51,15 @@
           <strong>Casual</strong>
         </div>
 
-        <div class="model-card">
-          <div class="model-figure">👟</div>
-          <h2>Nueva colección</h2>
-          <p>Ropa básica, urbana y cómoda.</p>
-        </div>
+        <a href="productos.html?categoria=outlet" class="model-card">
+          <div class="model-figure">🏷️</div>
+          <h2>Outlet urbano</h2>
+          <p>Prendas seleccionadas con precios especiales.</p>
+        </a>
 
         <div class="floating-card card-two">
-          <span>Neutro</span>
-          <strong>Familiar</strong>
+          <span>Rebajas</span>
+          <strong>Outlet</strong>
         </div>
       </div>
     </section>
@@ -88,10 +89,10 @@
           <p>Estilo cargo, jeans y joggers cómodos.</p>
         </a>
 
-        <a class="category-card" href="productos.html?categoria=Faldas">
-          <div>👗</div>
-          <h3>Faldas</h3>
-          <p>Outfits casuales con estilo urbano.</p>
+        <a class="category-card" href="productos.html?categoria=outlet">
+          <div>🏷️</div>
+          <h3>Outlet</h3>
+          <p>Prendas seleccionadas con precios especiales.</p>
         </a>
       </div>
     </section>
@@ -116,6 +117,6 @@
   </footer>
 
   <script src="js/api.js"></script>
-  <script src="js/main.js?v=304"></script>
+  <script src="js/main.js?v=305"></script>
 </body>
 </html>

@@ -5,14 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin | Urban Moda</title>
 
-  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="./css/styles.css?v=400">
 </head>
 
 <body>
+  <header class="navbar">
+    <a class="logo" href="index.html">URBAN<span>MODA</span></a>
+
+    <nav id="menu">
+      <a href="index.html">Inicio</a>
+      <a href="productos.html">Productos</a>
+
+      <a href="carrito.html" id="cartLink">
+        Carrito <span id="cartCount" class="badge">0</span>
+      </a>
+
+      <a href="admin.html" id="adminLink" class="hidden">Admin</a>
+
+      <a href="login.html" class="btn-nav" id="loginLink">Ingresar</a>
+      <button class="logout-btn hidden" id="logoutBtn">Salir</button>
+    </nav>
+  </header>
 
   <main class="container">
 
-    <h1>Panel Admin</h1>
+    <section class="section-title">
+      <span>ADMIN</span>
+      <h1>Panel administrador</h1>
+      <p>Gestiona los productos disponibles en Urban Moda.</p>
+    </section>
 
     <form id="productoForm">
 
@@ -20,6 +41,13 @@
         type="text"
         id="productName"
         placeholder="Nombre producto"
+        required
+      >
+
+      <input
+        type="text"
+        id="productDescription"
+        placeholder="Descripción del producto"
         required
       >
 
@@ -31,6 +59,7 @@
         <option value="5">Chaquetas</option>
         <option value="6">Blusas</option>
         <option value="7">Faldas</option>
+        <option value="8">Outlet</option>
       </select>
 
       <input
@@ -41,24 +70,38 @@
       >
 
       <input
+        type="number"
+        id="productStock"
+        placeholder="Stock"
+        required
+      >
+
+      <input
         type="text"
         id="productImage"
         placeholder="URL de imagen"
       >
 
-      <button type="submit">
+      <button type="submit" id="saveProductBtn">
         Guardar producto
+      </button>
+
+      <button type="button" id="cancelEditBtn" class="hidden">
+        Cancelar edición
       </button>
 
     </form>
 
-    <h2>Productos registrados</h2>
+    <h2 style="margin-top: 40px; margin-bottom: 20px;">
+      Productos registrados
+    </h2>
 
     <section id="adminProducts" class="product-grid"></section>
 
   </main>
 
-  <script src="./js/admin.js?v=301"></script>
-
+  <script src="./js/api.js"></script>
+  <script src="./js/main.js?v=306"></script>
+  <script src="./js/admin.js?v=303"></script>
 </body>
 </html>

@@ -1,204 +1,281 @@
-const carritoLista = document.getElementById("carritoLista");
-const subtotalEl = document.getElementById("subtotal");
-const totalEl = document.getElementById("total");
-const aplicarCuponBtn = document.getElementById("aplicarCupon");
-const finalizarCompraBtn = document.getElementById("finalizarCompra");
-const vaciarCarritoBtn = document.getElementById("vaciarCarrito");
-
-let descuento = 0;
-
-function getCart() {
-  return JSON.parse(localStorage.getItem("carrito")) || [];
-}
-
-function saveCart(cart) {
-  localStorage.setItem("carrito", JSON.stringify(cart));
-}
-
-function formatPrice(value) {
-  return "$ " + Number(value || 0).toLocaleString();
-}
-
-function showMessage(message) {
-  alert(message);
-}
-
-function updateCartCount() {
+document.addEventListener("DOMContentLoaded", () => {
+  const carritoLista = document.getElementById("carritoLista");
+  const subtotalEl = document.getElementById("subtotal");
+  const totalEl = document.getElementById("total");
+  const aplicarCuponBtn = document.getElementById("aplicarCupon");
+  const finalizarCompraBtn = document.getElementById("finalizarCompra");
+  const vaciarCarritoBtn = document.getElementById("vaciarCarrito");
+  const cuponInput = document.getElementById("cupon");
   const cartCount = document.getElementById("cartCount");
+  const paymentMethod = document.getElementById("paymentMethod");
+  const paymentInfo = document.getElementById("paymentInfo");
 
-  if (!cartCount) return;
+  let descuento = 0;
 
-  const cart = getCart();
-
-  const cantidad = cart.reduce((total, item) => {
-    return total + Number(item.quantity || 1);
-  }, 0);
-
-  cartCount.textContent = cantidad;
-}
-
-function pintarCarrito() {
-  const cart = getCart();
-  carritoLista.innerHTML = "";
-
-  if (cart.length === 0) {
-    carritoLista.innerHTML = "<p>Tu carrito está vacío. Agrega productos desde el catálogo.</p>";
-    actualizarTotales();
-    return;
+  function getUser() {
+    return JSON.parse(localStorage.getItem("user") || "null");
   }
 
-  cart.forEach((item) => {
-    const row = document.createElement("div");
-    row.className = "cart-row";
+  function getCartKey() {
+    const user = getUser();
 
-    row.innerHTML = `
-      <div class="cart-emoji">
-        <img 
-          src="${item.image || item.imagen || 'https://placehold.co/100x100'}" 
-          alt="${item.name || item.nombre}"
-          style="width:90px;height:90px;object-fit:cover;border-radius:12px;"
-        >
-      </div>
-
-      <div>
-        <h3>${item.name || item.nombre}</h3>
-        <p>${formatPrice(item.price || item.precio)} c/u</p>
-
-        <div class="qty-controls">
-          <button onclick="cambiarCantidad(${item.id || item.id_producto}, -1)">-</button>
-          <strong>${item.quantity || 1}</strong>
-          <button onclick="cambiarCantidad(${item.id || item.id_producto}, 1)">+</button>
-        </div>
-      </div>
-
-      <button class="remove-btn" onclick="eliminarItem(${item.id || item.id_producto})">
-        Eliminar
-      </button>
-    `;
-
-    carritoLista.appendChild(row);
-  });
-
-  actualizarTotales();
-}
-
-function actualizarTotales() {
-  const cart = getCart();
-
-  const subtotal = cart.reduce((total, item) => {
-    return total + Number(item.price || item.precio || 0) * Number(item.quantity || 1);
-  }, 0);
-
-  const total = Math.max(subtotal - descuento, 0);
-
-  subtotalEl.textContent = formatPrice(subtotal);
-  totalEl.textContent = formatPrice(total);
-
-  updateCartCount();
-}
-
-function cambiarCantidad(id, cambio) {
-  const cart = getCart();
-
-  const item = cart.find((producto) => {
-    return Number(producto.id || producto.id_producto) === Number(id);
-  });
-
-  if (!item) return;
-
-  item.quantity = Number(item.quantity || 1) + cambio;
-
-  if (item.quantity <= 0) {
-    const nuevoCart = cart.filter((producto) => {
-      return Number(producto.id || producto.id_producto) !== Number(id);
-    });
-
-    saveCart(nuevoCart);
-  } else {
-    saveCart(cart);
-  }
-
-  pintarCarrito();
-}
-
-function eliminarItem(id) {
-  const cart = getCart().filter((item) => {
-    return Number(item.id || item.id_producto) !== Number(id);
-  });
-
-  saveCart(cart);
-  pintarCarrito();
-}
-
-aplicarCuponBtn.addEventListener("click", () => {
-  const code = document.getElementById("cupon").value.trim().toUpperCase();
-
-  if (!code) {
-    showMessage("Escribe un cupón.");
-    return;
-  }
-
-  if (code === "URBAN10") {
-    const subtotal = getCart().reduce((total, item) => {
-      return total + Number(item.price || item.precio || 0) * Number(item.quantity || 1);
-    }, 0);
-
-    descuento = subtotal * 0.10;
-
-    showMessage("Cupón URBAN10 aplicado con 10% de descuento.");
-    actualizarTotales();
-    return;
-  }
-
-  showMessage("Cupón no válido.");
-});
-
-finalizarCompraBtn.addEventListener("click", async () => {
-  const cart = getCart();
-
-  if (cart.length === 0) {
-    showMessage("El carrito está vacío.");
-    return;
-  }
-
-  try {
-    const response = await fetch("https://urban-moda-backend.onrender.com/orders", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        clientId: 1,
-        status: "pendiente",
-        items: cart.map((item) => ({
-          id: item.id || item.id_producto,
-          quantity: item.quantity || 1,
-          price: item.price || item.precio || 0
-        }))
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error("Error guardando pedido");
+    if (user && user.id) {
+      return `carrito_user_${user.id}`;
     }
 
-    saveCart([]);
-    descuento = 0;
-    pintarCarrito();
+    if (user && user.email) {
+      return `carrito_user_${user.email}`;
+    }
 
-    showMessage("Compra guardada correctamente en la base de datos.");
-
-  } catch (error) {
-    console.error(error);
-    showMessage("Error: la compra no se pudo guardar en la base de datos.");
+    return "carrito_guest";
   }
-});
 
-vaciarCarritoBtn.addEventListener("click", () => {
-  saveCart([]);
-  descuento = 0;
-  pintarCarrito();
-  showMessage("Carrito vacío.");
-});
+  function getCart() {
+    const cartKey = getCartKey();
+    return JSON.parse(localStorage.getItem(cartKey)) || [];
+  }
 
-pintarCarrito();
+  function saveCart(carrito) {
+    const cartKey = getCartKey();
+    localStorage.setItem(cartKey, JSON.stringify(carrito));
+  }
+
+  function formatPrice(value) {
+    return "$ " + Number(value || 0).toLocaleString();
+  }
+
+  function actualizarContadorCarrito() {
+    const carrito = getCart();
+
+    if (cartCount) {
+      const cantidad = carrito.reduce((total, item) => {
+        return total + Number(item.quantity || 1);
+      }, 0);
+
+      cartCount.textContent = cantidad;
+    }
+  }
+
+  function calcularSubtotal(carrito) {
+    return carrito.reduce((total, item) => {
+      const precio = Number(item.price || item.precio || 0);
+      const cantidad = Number(item.quantity || 1);
+
+      return total + precio * cantidad;
+    }, 0);
+  }
+
+  function renderCarrito() {
+    const carrito = getCart();
+
+    if (!carritoLista) return;
+
+    carritoLista.innerHTML = "";
+
+    if (carrito.length === 0) {
+      carritoLista.innerHTML = `
+        <p style="padding: 20px;">
+          Tu carrito está vacío.
+        </p>
+      `;
+
+      if (subtotalEl) subtotalEl.textContent = formatPrice(0);
+      if (totalEl) totalEl.textContent = formatPrice(0);
+
+      actualizarContadorCarrito();
+      return;
+    }
+
+    carrito.forEach((item, index) => {
+      const nombre = item.name || item.nombre || "Producto";
+      const precio = Number(item.price || item.precio || 0);
+      const cantidad = Number(item.quantity || 1);
+      const imagen = item.image || item.imagen || "https://placehold.co/120x120";
+      const subtotalProducto = precio * cantidad;
+
+      const itemDiv = document.createElement("article");
+      itemDiv.classList.add("cart-item");
+
+      itemDiv.innerHTML = `
+        <div style="display:flex; gap:16px; align-items:center;">
+          <img 
+            src="${imagen}" 
+            alt="${nombre}" 
+            style="width:90px; height:90px; object-fit:cover; border-radius:16px;"
+          >
+
+          <div>
+            <h3>${nombre}</h3>
+            <p>Precio: ${formatPrice(precio)}</p>
+            <p>Cantidad: ${cantidad}</p>
+            <strong>Subtotal: ${formatPrice(subtotalProducto)}</strong>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button type="button" onclick="disminuirCantidad(${index})">-</button>
+          <button type="button" onclick="aumentarCantidad(${index})">+</button>
+          <button type="button" onclick="eliminarProductoCarrito(${index})">Eliminar</button>
+        </div>
+      `;
+
+      carritoLista.appendChild(itemDiv);
+    });
+
+    const subtotal = calcularSubtotal(carrito);
+    const total = subtotal - descuento;
+
+    if (subtotalEl) subtotalEl.textContent = formatPrice(subtotal);
+    if (totalEl) totalEl.textContent = formatPrice(total < 0 ? 0 : total);
+
+    actualizarContadorCarrito();
+  }
+
+  function mostrarInfoPago() {
+    if (!paymentMethod || !paymentInfo) return;
+
+    const metodo = paymentMethod.value;
+
+    if (metodo === "contraentrega") {
+      paymentInfo.textContent =
+        "Pagarás el pedido al momento de recibirlo.";
+    } else if (metodo === "online") {
+      paymentInfo.textContent =
+        "Al finalizar serás redirigido a la pasarela de pagos simulada.";
+    } else {
+      paymentInfo.textContent = "";
+    }
+  }
+
+  window.aumentarCantidad = function (index) {
+    const carrito = getCart();
+
+    if (!carrito[index]) return;
+
+    carrito[index].quantity = Number(carrito[index].quantity || 1) + 1;
+
+    saveCart(carrito);
+    renderCarrito();
+  };
+
+  window.disminuirCantidad = function (index) {
+    const carrito = getCart();
+
+    if (!carrito[index]) return;
+
+    carrito[index].quantity = Number(carrito[index].quantity || 1) - 1;
+
+    if (carrito[index].quantity <= 0) {
+      carrito.splice(index, 1);
+    }
+
+    saveCart(carrito);
+    renderCarrito();
+  };
+
+  window.eliminarProductoCarrito = function (index) {
+    const carrito = getCart();
+
+    carrito.splice(index, 1);
+
+    saveCart(carrito);
+    renderCarrito();
+  };
+
+  if (paymentMethod) {
+    paymentMethod.addEventListener("change", mostrarInfoPago);
+  }
+
+  if (aplicarCuponBtn) {
+    aplicarCuponBtn.addEventListener("click", () => {
+      const cupon = cuponInput ? cuponInput.value.trim().toUpperCase() : "";
+
+      if (cupon === "URBAN10") {
+        const subtotal = calcularSubtotal(getCart());
+        descuento = subtotal * 0.1;
+        alert("Cupón aplicado: 10% de descuento");
+      } else {
+        descuento = 0;
+        alert("Cupón inválido");
+      }
+
+      renderCarrito();
+    });
+  }
+
+  if (vaciarCarritoBtn) {
+    vaciarCarritoBtn.addEventListener("click", () => {
+      const confirmar = confirm("¿Deseas vaciar el carrito?");
+
+      if (!confirmar) return;
+
+      saveCart([]);
+      descuento = 0;
+      renderCarrito();
+    });
+  }
+
+  if (finalizarCompraBtn) {
+    finalizarCompraBtn.addEventListener("click", () => {
+      const carrito = getCart();
+
+      if (carrito.length === 0) {
+        alert("Tu carrito está vacío");
+        return;
+      }
+
+      const user = getUser();
+
+      if (!user) {
+        const irLogin = confirm(
+          "Para finalizar la compra debes iniciar sesión o registrarte. Tu carrito se conservará."
+        );
+
+        if (irLogin) {
+          localStorage.setItem("redirectAfterLogin", "carrito.html");
+          window.location.href = "login.html";
+        }
+
+        return;
+      }
+
+      const metodoPago = paymentMethod ? paymentMethod.value : "";
+
+      if (!metodoPago) {
+        alert("Selecciona un método de pago antes de finalizar la compra");
+        return;
+      }
+
+      const subtotal = calcularSubtotal(carrito);
+      const total = subtotal - descuento;
+
+      const orden = {
+        usuario: user,
+        productos: carrito,
+        metodoPago,
+        subtotal,
+        descuento,
+        total: total < 0 ? 0 : total,
+        fecha: new Date().toLocaleString()
+      };
+
+      localStorage.setItem("ordenPendiente", JSON.stringify(orden));
+
+      if (metodoPago === "online") {
+        window.location.href = "pasarela.html";
+        return;
+      }
+
+      if (metodoPago === "contraentrega") {
+        alert("Compra finalizada correctamente. Pagarás al recibir tu pedido.");
+
+        saveCart([]);
+        descuento = 0;
+        localStorage.removeItem("ordenPendiente");
+        renderCarrito();
+      }
+    });
+  }
+
+  renderCarrito();
+});
